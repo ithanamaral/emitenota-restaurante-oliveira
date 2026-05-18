@@ -3,6 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+// Habilita o live reload durante o desenvolvimento
+try {
+  require('electron-reload')(__dirname, {
+    // Força o reinício completo caso altere o main.js
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron')
+  });
+} catch (err) {
+  // Ignora se não conseguir carregar (ex: em produção)
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 900,

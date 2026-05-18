@@ -13,16 +13,41 @@
         <h1>Nova Remessa Internacional</h1>
         <form id="remessaForm">
             <div class="form-group">
-                <label>Nome do Remetente:</label>
+                <label>Nome do Cliente:</label>
                 <input type="text" id="senderName" required>
             </div>
             <div class="form-group">
-                <label>Nome do Destinatário:</label>
+                <label>Endereço:</label>
                 <input type="text" id="receiverName" required>
             </div>
             <div class="form-group">
-                <label>País de Destino:</label>
-                <input type="text" id="destinationCountry" required>
+                <label for="carnes">Escolha as carnes na lista</label>
+                <select id="carnes" name="carnes">
+                <option value="Feijoada Real">Feijoada Real</option>
+                <option value="Filé de peixe">Filé de peixe</option>
+                <option value="Filé de frango grelhado">Filé de frango grelhado</option>
+                <option value="⁠Filé de frango à milanesa">⁠Filé de frango à milanesa</option>
+                <option value="coxinha da asa">Coxinha da Asa</option>
+                <option value="⁠parmegiana">Parmegiana</option>
+                <option value="costelinha suína">Costelinha suína</option>
+                <option value="⁠iscas de fígado bovino">Iscas de fígado bovino</option>
+                <option value="⁠bife de pernil acebolado">⁠Bife de pernil acebolado</option>
+                <option value="⁠bife bovino acebolado">⁠Bife bovino acebolado</option>
+                <option value="⁠costela bovina cozida">⁠Costela bovina cozida</option>
+                <option value="⁠fraldinha bovina assada">⁠Fraldinha bovina assada</option>
+                <option value="maçã de peito assada">maçã de peito assada</option>
+                <option value="⁠sobrecoxa de frango">⁠Sobrecoxa de frango</option>
+                <option value="⁠lombo suíno">⁠Lombo suíno</option>
+                <option value="paleta bovina cozida">Paleta bovina cozida</option>
+                <option value="linguiça suína assada">⁠Linguiça suína assada</option>
+                <option value="⁠Burguer sabor picanha grelhado 90g">⁠Burguer sabor picanha grelhado 90g</option>
+                <option value="⁠Ovos fritos (gema dura)">⁠Ovos fritos (gema dura)</option>
+                <option value="⁠Ovos fritos (gema mole)">⁠Ovos fritos (gema mole)</option>
+                <option value="Omelete napolitano  (2 ovos fritos + presunto e queijo)">Omelete napolitano  (2 ovos fritos + presunto e queijo)</option>
+                <option value="⁠strogonoff de frango">⁠Strogonoff de frango</option>
+                <option value="⁠carne moída">⁠Bife de pernil acebolado</option>
+                <option value="espaguete à bolonhesa">espaguete à bolonhesa</option>          
+                </select>
             </div>
             <div class="form-group">
                 <label>Valor Enviado (BRL):</label>
@@ -32,6 +57,7 @@
                 <label>Cotação do Dólar (R$):</label>
                 <input type="number" id="exchangeRate" step="0.0001" required>
             </div>
+            
             <button type="submit">Pré-visualizar Comprovante</button>
         </form>
     </div>
