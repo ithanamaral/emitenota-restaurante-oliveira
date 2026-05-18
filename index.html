@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emissor de Remessa Internacional</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Área de Formulário (Não aparece na impressão) -->
+    <div id="form-container" class="container no-print">
+        <h1>Nova Remessa Internacional</h1>
+        <form id="remessaForm">
+            <div class="form-group">
+                <label>Nome do Remetente:</label>
+                <input type="text" id="senderName" required>
+            </div>
+            <div class="form-group">
+                <label>Nome do Destinatário:</label>
+                <input type="text" id="receiverName" required>
+            </div>
+            <div class="form-group">
+                <label>País de Destino:</label>
+                <input type="text" id="destinationCountry" required>
+            </div>
+            <div class="form-group">
+                <label>Valor Enviado (BRL):</label>
+                <input type="number" id="amount" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Cotação do Dólar (R$):</label>
+                <input type="number" id="exchangeRate" step="0.0001" required>
+            </div>
+            <button type="submit">Pré-visualizar Comprovante</button>
+        </form>
+    </div>
+
+    <!-- Área do Comprovante (Aparece na tela e na impressão) -->
+    <div id="receipt-area" class="hidden">
+        <!-- Botões de Controle da Pré-visualização -->
+        <div class="preview-controls no-print">
+            <button id="btnPrint" class="btn-print"> Visualizar PDF / Imprimir</button>
+            <button id="btnBack" class="btn-back">✏️ Voltar / Editar</button>
+        </div>
+
+        <!-- 1ª Via - Cliente -->
+        <div class="print-page">
+            <h2 class="via-header">CLIENTE</h2>
+            <div class="receipt-container">
+            <div class="receipt-header">
+                <h2>Comprovante de Remessa Internacional</h2>
+                <p>Data: <span class="r-date"></span></p>
+                <p>ID da Transação: <span class="r-id"></span></p>
+            </div>
+            <div class="receipt-body">
+                <p><strong>Remetente:</strong> <span class="r-sender"></span></p>
+                <p><strong>Destinatário:</strong> <span class="r-receiver"></span></p>
+                <p><strong>País de Destino:</strong> <span class="r-country"></span></p>
+                <hr>
+                <p><strong>Valor Enviado:</strong> R$ <span class="r-amount"></span></p>
+                <p><strong>Taxa de Câmbio:</strong> <span class="r-rate"></span></p>
+                <p class="total"><strong>Valor Final (USD):</strong> <span class="r-final"></span></p>
+            </div>
+            <div class="receipt-footer">
+                <p>Este documento serve como comprovante da operação solicitada.</p>
+                <p>EmiteNota App - Eletron</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- 2ª Via - Empresa -->
+        <div class="print-page">
+            <h2 class="via-header">EMPRESA</h2>
+            <div class="receipt-container">
+            <div class="receipt-header">
+                <h2>Comprovante de Remessa Internacional</h2>
+                <p>Data: <span class="r-date"></span></p>
+                <p>ID da Transação: <span class="r-id"></span></p>
+            </div>
+            <div class="receipt-body">
+                <p><strong>Remetente:</strong> <span class="r-sender"></span></p>
+                <p><strong>Destinatário:</strong> <span class="r-receiver"></span></p>
+                <p><strong>País de Destino:</strong> <span class="r-country"></span></p>
+                <hr>
+                <p><strong>Valor Enviado:</strong> R$ <span class="r-amount"></span></p>
+                <p><strong>Taxa de Câmbio:</strong> <span class="r-rate"></span></p>
+                <p class="total"><strong>Valor Final (USD):</strong> <span class="r-final"></span></p>
+            </div>
+            <div class="receipt-footer">
+                <p>Este documento serve como comprovante da operação solicitada.</p>
+                <p>EmiteNota App - Eletron</p>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
