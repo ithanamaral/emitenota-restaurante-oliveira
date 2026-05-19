@@ -6,12 +6,13 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     // Captura os dados
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
-    const country = document.getElementById('destinationCountry').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    const rate = parseFloat(document.getElementById('exchangeRate').value);
+    const carnes = document.getElementById('carnes').value;
+    const acompanhamentos = document.getElementById('acompanhamentos').value;
+    
+    // O valor precisa tratar vírgulas como decimais e extrair o número
+    const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
+    const amount = parseFloat(rawPrice) || 0;
 
-    // Cálculos simples
-    const finalValue = (amount / rate).toFixed(2);
     const date = new Date().toLocaleString('pt-BR');
     const transactionId = Math.floor(Math.random() * 1000000000);
 
@@ -20,13 +21,12 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         document.querySelectorAll('.' + className).forEach(el => el.innerText = value);
     };
 
-    // Preenche as duas vias
+    // Preenche as informações do recibo
     fillField('r-sender', sender);
     fillField('r-receiver', receiver);
-    fillField('r-country', country);
-    fillField('r-amount', amount.toFixed(2));
-    fillField('r-rate', rate);
-    fillField('r-final', "US$ " + finalValue);
+    fillField('r-carnes', carnes);
+    fillField('r-acompanhamentos', acompanhamentos);
+    fillField('r-amount', amount.toFixed(2).replace('.', ','));
     fillField('r-date', date);
     fillField('r-id', transactionId);
 
