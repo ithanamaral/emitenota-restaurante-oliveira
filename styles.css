@@ -5,6 +5,24 @@ body {
     padding: 20px;
 }
 
+.header, .header-print{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.header img, .header-print img{
+    width: 160px;
+}
+
+.header h1, .header-print h1{
+    margin: 0;
+    width: 100%;
+    text-align: center;
+}
+
 .container {
     background-color: white;
     padding: 20px;
