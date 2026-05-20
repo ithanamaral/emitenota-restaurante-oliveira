@@ -6,27 +6,38 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     // Captura os dados
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
-    const country = document.getElementById('destinationCountry').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    const rate = parseFloat(document.getElementById('exchangeRate').value);
+    
+    // Pega todas as opções selecionadas e as formata como tópicos (bullets)
+    const carnesSelects = document.querySelectorAll('.carne-select');
+    const carnesValues = Array.from(carnesSelects)
+        .map(select => select.value)
+        .filter(val => val !== "");
+    const carnes = carnesValues.length > 0 ? '<br>' + carnesValues.map(val => `&bull; ${val}`).join('<br>') : '';
+    
+    const acompSelects = document.querySelectorAll('.acomp-select');
+    const acompValues = Array.from(acompSelects)
+        .map(select => select.value)
+        .filter(val => val !== "");
+    const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : '';
+    
+    // O valor precisa tratar vírgulas como decimais e extrair o número
+    const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
+    const amount = parseFloat(rawPrice) || 0;
 
-    // Cálculos simples
-    const finalValue = (amount / rate).toFixed(2);
     const date = new Date().toLocaleString('pt-BR');
     const transactionId = Math.floor(Math.random() * 1000000000);
 
     // Função auxiliar para preencher todas as ocorrências (vias)
     const fillField = (className, value) => {
-        document.querySelectorAll('.' + className).forEach(el => el.innerText = value);
+        document.querySelectorAll('.' + className).forEach(el => el.innerHTML = value);
     };
 
-    // Preenche as duas vias
+    // Preenche as informações do recibo
     fillField('r-sender', sender);
     fillField('r-receiver', receiver);
-    fillField('r-country', country);
-    fillField('r-amount', amount.toFixed(2));
-    fillField('r-rate', rate);
-    fillField('r-final', "US$ " + finalValue);
+    fillField('r-carnes', carnes);
+    fillField('r-acompanhamentos', acompanhamentos);
+    fillField('r-amount', amount.toFixed(2).replace('.', ','));
     fillField('r-date', date);
     fillField('r-id', transactionId);
 
@@ -54,3 +65,27 @@ document.getElementById('btnBack').addEventListener('click', () => {
     document.getElementById('receipt-area').classList.add('hidden');
     document.getElementById('form-container').classList.remove('hidden');
 });
+
+// Lógica para adicionar selects dinamicamente
+function handleDynamicSelects(containerId, selectClass) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.addEventListener('change', (e) => {
+        if (e.target.classList.contains(selectClass)) {
+            const selects = container.querySelectorAll('.' + selectClass);
+            const lastSelect = selects[selects.length - 1];
+            
+            // Se o último select tiver um valor selecionado (diferente do placeholder), cria um novo
+            if (lastSelect.value !== "") {
+                const newSelect = lastSelect.cloneNode(true);
+                newSelect.value = ""; // Reseta o valor para o placeholder
+                newSelect.style.marginTop = "10px"; // Adiciona espaçamento
+                container.appendChild(newSelect);
+            }
+        }
+    });
+}
+
+handleDynamicSelects('carnes-container', 'carne-select');
+handleDynamicSelects('acompanhamentos-container', 'acomp-select');
