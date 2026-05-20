@@ -23,9 +23,11 @@
                 <input type="text" id="receiverName" required>
             </div>
             <!-- CARNES -->
-            <div class="form-group">
-                <label for="carnes">Escolha as carnes na lista</label>
-                <select id="carnes" name="carnes">
+            <div class="form-group" id="carnes-group">
+                <label>Escolha as carnes na lista</label>
+                <div id="carnes-container">
+                    <select class="carne-select" name="carnes">
+                        <option value="" disabled selected>Selecione uma carne...</option>
                 <option value="nenhuma das opções">Sem carnes</option>
                 <option value="Feijoada Real">Feijoada Real</option>
                 <option value="Filé de peixe">Filé de peixe</option>
@@ -52,11 +54,14 @@
                 <option value="⁠carne moída">⁠Bife de pernil acebolado</option>
                 <option value="espaguete à bolonhesa">espaguete à bolonhesa</option>          
                 </select>
+                </div>
             </div>
             <!-- ACOMPANHAMENTOS -->
-            <div class="form-group">
-                <label for="acompanhamentos">Escolha o acompanhamento</label>
-                <select id="acompanhamentos" name="acompanhamentos">
+            <div class="form-group" id="acompanhamentos-group">
+                <label>Escolha o acompanhamento</label>
+                <div id="acompanhamentos-container">
+                    <select class="acomp-select" name="acompanhamentos">
+                        <option value="" disabled selected>Selecione um acompanhamento...</option>
                 <option value="nenhuma das opções">Sem acompanhamentos</option>
                 <option value="Arroz">Arroz</option>
                 <option value="Feijão">Feijão</option>
@@ -91,6 +96,7 @@
                 <option value="Fruta do dia">Fruta do dia</option>
                 <option value="Saladas do dia">Saladas do dia</option>
                 </select>
+                </div>
             </div>
             <!-- VALORES -->
             <div class="form-group">
