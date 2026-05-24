@@ -15,19 +15,16 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const carnesValues = Array.from(carnesSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const carnes = carnesValues.length > 0 ? '<br>' + carnesValues.map(val => `&bull; ${val}`).join('<br>') : '';
 
     const acompSelects = document.querySelectorAll('.acomp-select');
     const acompValues = Array.from(acompSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : ''
-    
+
     const bebidaSelects = document.querySelectorAll('.bebida-select');
     const bebidaValues = Array.from(bebidaSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const bebidas = bebidaValues.length > 0 ? '<br>' + bebidaValues.map(val => `&bull; ${val}`).join('<br>') : '';
 
     //Captura forma de pagamento
     const pagamento = document.getElementById('pagamento-select').value;
@@ -47,10 +44,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     //Captura as observações
     const observacoes = document.getElementById('observation-input').value;
     
-    // O valor precisa tratar vírgulas como decimais e extrair o número
-    // Remove pontos de milhar e converte a vírgula decimal em ponto para o parseFloat
-    const rawPrice = document.getElementById('pricevalue').value.replace(/\./g, '').replace(',', '.');
-    const amount = parseFloat(rawPrice) || 0;
+    // Pega o valor formatado do input
+    const amountStr = document.getElementById('pricevalue').value;
 
     if (ordersQueue.length >= 6) {
         alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
@@ -59,9 +54,12 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
 
     // Cria o objeto do pedido e adiciona à fila
     const order = {
-        sender, receiver, phone, carnes, acompanhamentos, bebidas,
+        sender, receiver, phone, 
+        carnes: carnesValues, 
+        acompanhamentos: acompValues, 
+        bebidas: bebidaValues,
         pagamento, tamanho, quantity, entrega, talher, observacoes,
-        amount: amount.toFixed(2).replace('.', ','),
+        amount: amountStr,
         date: new Date().toLocaleString('pt-BR'),
         id: Math.floor(Math.random() * 1000000)
     };
@@ -89,20 +87,40 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
     grid.innerHTML = ''; // Limpa a grade antes de renderizar
 
     ordersQueue.forEach(order => {
+        const formatBullets = (arr) => arr.length > 0 ? '<br>' + arr.map(val => `&bull; ${val}`).join('<br>') : '';
+
         grid.innerHTML += `
             <div class="receipt-container">
+                <div class="receipt-actions no-print">
+                    <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
+                </div>
                 <div class="receipt-header">
                     <img src="public/logo Restaurante oliveira.png" style="width: 50px;">
                     <h1>OLIVEIRA REAL</h1>
                     <p style="font-size: 9px">ID: ${order.id} | ${order.date}</p>
                 </div>
                 <div class="receipt-body">
+                    <div class="receipt-margin">
                     <p><strong>Cliente:</strong> ${order.sender}</p>
+                    </div>
+                    <div class="receipt-margin">
                     <p><strong>Telefone:</strong> ${order.phone}</p>
+                    </div>
+                    <div class="receipt-margin">
                     <p><strong>Endereço:</strong> ${order.receiver}</p>
+                    </div>
+                    <div class="receipt-margin">
                     <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
-                    <p><strong>Carnes:</strong> ${order.carnes}</p>
-                    <p><strong>Bebidas:</strong> ${order.bebidas}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Carnes:</strong> ${formatBullets(order.carnes)}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Acompanhamentos:</strong> ${formatBullets(order.acompanhamentos)}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Bebidas:</strong> ${formatBullets(order.bebidas)}</p>
+                    </div>
                     <p><strong>Observações:</strong> ${order.observacoes}</p>
                     <hr>
                     <p><strong>R$ ${order.amount}</strong> (${order.pagamento})</p>
@@ -160,6 +178,60 @@ document.getElementById('btnBack').addEventListener('click', () => {
     document.getElementById('receipt-area').classList.add('hidden');
     document.getElementById('form-container').classList.remove('hidden');
 });
+
+// Função para editar um pedido da fila
+window.editOrder = (orderId) => {
+    const orderIndex = ordersQueue.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) return;
+
+    const order = ordersQueue[orderIndex];
+    ordersQueue.splice(orderIndex, 1); // Remove da fila atual
+    updateQueueUI();
+
+    // Preenche campos de texto e selects simples
+    document.getElementById('senderName').value = order.sender;
+    document.getElementById('receiverName').value = order.receiver;
+    document.getElementById('receiverPhone').value = order.phone;
+    document.getElementById('tamanho-select').value = order.tamanho;
+    document.getElementById('quantity-input').value = order.quantity;
+    document.getElementById('pricevalue').value = order.amount;
+    document.getElementById('pagamento-select').value = order.pagamento;
+    document.getElementById('delivery-select').value = order.entrega;
+    document.getElementById('talher-select').value = order.talher;
+    document.getElementById('observation-input').value = order.observacoes;
+
+    // Reconstrói as linhas dinâmicas (Carnes, Acomp, Bebidas)
+    const rebuildDynamic = (containerId, selectClass, values) => {
+        const container = document.getElementById(containerId);
+        const templateHTML = container.querySelector('.' + selectClass).outerHTML;
+        container.innerHTML = '';
+
+        values.forEach(val => {
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = templateHTML;
+            const select = row.querySelector('.' + selectClass);
+            select.value = val;
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button'; btnRemove.className = 'btn-remove'; btnRemove.innerText = 'X';
+            btnRemove.onclick = () => row.remove();
+            row.appendChild(btnRemove);
+            container.appendChild(row);
+        });
+
+        const emptyRow = document.createElement('div');
+        emptyRow.className = 'dynamic-row'; emptyRow.innerHTML = templateHTML;
+        emptyRow.querySelector('.' + selectClass).value = "";
+        container.appendChild(emptyRow);
+    };
+
+    rebuildDynamic('carnes-container', 'carne-select', order.carnes);
+    rebuildDynamic('acompanhamentos-container', 'acomp-select', order.acompanhamentos);
+    rebuildDynamic('bebidas-container', 'bebida-select', order.bebidas);
+
+    // Volta para a tela de formulário
+    document.getElementById('btnBack').click();
+};
 
 // Função para exibir o modal de confirmação assíncrono
 function showCustomConfirm(message) {
@@ -239,3 +311,29 @@ function handleDynamicSelects(containerId, selectClass) {
 handleDynamicSelects('carnes-container', 'carne-select');
 handleDynamicSelects('acompanhamentos-container', 'acomp-select');
 handleDynamicSelects('bebidas-container', 'bebida-select');
+
+// Função para testar o layout da folha com 6 notas fictícias
+document.getElementById('btnTestLayout').addEventListener('click', () => {
+    ordersQueue = []; // Limpa a fila atual para o teste
+    for(let i = 1; i <= 6; i++) {
+        ordersQueue.push({
+            sender: `Cliente de Teste ${i}`,
+            receiver: `Rua Exemplo de Teste, nº ${i}00 - Bairro Centro`,
+            phone: `(31) 98888-000${i}`,
+            carnes: ['Bife bovino acebolado', 'Carne Moída'],
+            acompanhamentos: ['Arroz', 'Feijão', 'Batata frita', 'Couve'],
+            bebidas: ['Coca cola lata'],
+            pagamento: 'Pix',
+            tamanho: 'Média',
+            quantity: '1',
+            entrega: 'Entrega',
+            talher: 'Sim',
+            observacoes: 'Esta é uma observação de teste para verificar como o texto se comporta no layout de 6 divisões.',
+            amount: '35,00',
+            date: new Date().toLocaleString('pt-BR'),
+            id: 1000 + i
+        });
+    }
+    updateQueueUI();
+    document.getElementById('btnShowSheet').click();
+});

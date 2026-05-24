@@ -15,8 +15,8 @@ try {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 1400,
+    height: 1050,
     show: false,
     backgroundColor: '#f0f2f5',
     webPreferences: {

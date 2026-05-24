@@ -7,6 +7,7 @@ body {
 
 .header, .header-print{
     display: flex;
+    flex-wrap: wrap; /* Permite que a logo e o título se organizem em linhas diferentes se não houver espaço */
     align-items: center;
     justify-content: center; /* Centraliza para evitar expansão lateral desnecessária */
     margin-bottom: 20px;
@@ -22,7 +23,9 @@ body {
 
 .header h1, .header-print h1{
     margin: 0;
-    flex: none; /* Remove o crescimento automático que causava o bloqueio */
+    flex: 1; /* Permite que o título se ajuste ao espaço disponível */
+    min-width: 280px; /* Garante que o texto não fique espremido demais antes de quebrar linha */
+    font-size: 24px; /* Define um tamanho de fonte mais adequado para evitar o vazamento */
     text-align: center;
     pointer-events: none; /* Impede que o título "vaze" e bloqueie os inputs abaixo */
 }
@@ -32,8 +35,12 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 750px; /* Aumenta a largura total do formulário na tela */
+    max-width: 1200px; /* Aumenta a largura total do formulário na tela */
     margin: 0 auto 20px auto;
+}
+
+.receipt-margin{
+    margin-top: 15px;
 }
 
 .form-group {
@@ -106,6 +113,12 @@ button:hover {
 }
 
 /* Estilos do Comprovante */
+#receipt-area {
+    background-color: #525659; /* Cor de fundo estilo visualizador de PDF */
+    padding: 40px 0;
+    min-height: 100vh;
+}
+
 .receipt-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 colunas */
@@ -113,9 +126,11 @@ button:hover {
     gap: 2mm;
     width: 210mm; /* Largura A4 */
     height: 297mm; /* Altura A4 */
-    margin: 0 auto;
+    margin: 0 auto 40px auto;
     background-color: white;
     box-sizing: border-box;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5); /* Sombra para destacar a folha */
+    zoom: 1.1; /* Aumenta a escala visual na tela para facilitar o teste */
 }
 
 .receipt-container {
@@ -186,8 +201,11 @@ button:hover {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin: 0 auto 20px auto;
+    max-width: 1000px;
+    margin: 0 auto 40px auto;
+    position: sticky; /* Mantém os botões visíveis ao rolar */
+    top: 10px;
+    z-index: 100;
 }
 
 /* Estilos do Modal Personalizado */
