@@ -143,7 +143,10 @@ document.getElementById('btnClearQueue').addEventListener('click', () => {
 // Máscara para o campo de valor (Moeda R$) em tempo real
 document.getElementById('pricevalue').addEventListener('input', (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
-    if (value === "") return;
+    if (value === "") {
+        e.target.value = "";
+        return;
+    }
     
     // Formata o número para o padrão brasileiro (ex: 1.250,50)
     const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
