@@ -1,5 +1,7 @@
 const { ipcRenderer } = require('electron');
 
+let ordersQueue = []; // Buffer para guardar até 6 pedidos
+
 document.getElementById('remessaForm').addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -7,14 +9,14 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
     const phone = document.getElementById('receiverPhone').value;
-    
+
     // Pega todas as opções selecionadas e as formata como tópicos (bullets)
     const carnesSelects = document.querySelectorAll('.carne-select');
     const carnesValues = Array.from(carnesSelects)
         .map(select => select.value)
         .filter(val => val !== "");
     const carnes = carnesValues.length > 0 ? '<br>' + carnesValues.map(val => `&bull; ${val}`).join('<br>') : '';
-    
+
     const acompSelects = document.querySelectorAll('.acomp-select');
     const acompValues = Array.from(acompSelects)
         .map(select => select.value)
@@ -50,38 +52,74 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const rawPrice = document.getElementById('pricevalue').value.replace(/\./g, '').replace(',', '.');
     const amount = parseFloat(rawPrice) || 0;
 
-    const date = new Date().toLocaleString('pt-BR');
-    const transactionId = Math.floor(Math.random() * 1000000000);
+    if (ordersQueue.length >= 6) {
+        alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
+        return;
+    }
 
-    // Função auxiliar para preencher todas as ocorrências (vias)
-    const fillField = (className, value) => {
-        document.querySelectorAll('.' + className).forEach(el => el.innerHTML = value);
+    // Cria o objeto do pedido e adiciona à fila
+    const order = {
+        sender, receiver, phone, carnes, acompanhamentos, bebidas,
+        pagamento, tamanho, quantity, entrega, talher, observacoes,
+        amount: amount.toFixed(2).replace('.', ','),
+        date: new Date().toLocaleString('pt-BR'),
+        id: Math.floor(Math.random() * 1000000)
     };
 
-    // Preenche as informações do recibo
-    fillField('r-sender', sender);
-    fillField('r-receiver', receiver);
-    fillField('r-phone', phone);
-    fillField('r-carnes', carnes);
-    fillField('r-acompanhamentos', acompanhamentos);
-    fillField('r-amount', amount.toFixed(2).replace('.', ','));
-    fillField('r-date', date);
-    fillField('r-id', transactionId);
-    fillField('r-pagamento', pagamento);
-    fillField('r-tamanho', tamanho);
-    fillField('r-bebidas', bebidas);
-    fillField('r-quantity', quantity);
-    fillField('r-entrega', entrega);
-    fillField('r-talher', talher);
-    fillField('r-observation', observacoes);
+    ordersQueue.push(order);
+    updateQueueUI();
+    
+    // Limpa o formulário e remove os selects extras
+    e.target.reset();
+    document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
+});
 
+function updateQueueUI() {
+    document.getElementById('queue-count').innerText = ordersQueue.length;
+}
 
+// Botão para mostrar a grade de 6 notas
+document.getElementById('btnShowSheet').addEventListener('click', () => {
+    if (ordersQueue.length === 0) {
+        alert("Adicione pelo menos um pedido à folha.");
+        return;
+    }
+    
+    const grid = document.getElementById('receipt-grid');
+    grid.innerHTML = ''; // Limpa a grade antes de renderizar
 
+    ordersQueue.forEach(order => {
+        grid.innerHTML += `
+            <div class="receipt-container">
+                <div class="receipt-header">
+                    <img src="public/logo Restaurante oliveira.png" style="width: 50px;">
+                    <h1>OLIVEIRA REAL</h1>
+                    <p style="font-size: 9px">ID: ${order.id} | ${order.date}</p>
+                </div>
+                <div class="receipt-body">
+                    <p><strong>Cliente:</strong> ${order.sender}</p>
+                    <p><strong>Telefeone:</strong> ${order.phone}</p>
+                    <p><strong>Endereço:</strong> ${order.receiver}</p>
+                    <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
+                    <p><strong>Carnes:</strong> ${order.carnes}</p>
+                    <p><strong>Bebidas:</strong> ${order.bebidas}</p>
+                    <p><strong>Observações:</strong> ${order.observacoes}</p>
+                    <hr>
+                    <p><strong>R$ ${order.amount}</strong> (${order.pagamento})</p>
+                </div>
+            </div>`;
+    });
 
-
-    // Esconde o formulário e mostra a pré-visualização
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('receipt-area').classList.remove('hidden');
+});
+
+document.getElementById('btnClearQueue').addEventListener('click', () => {
+    if(confirm("Deseja realmente limpar toda a folha?")) {
+        ordersQueue = [];
+        updateQueueUI();
+        document.getElementById('btnBack').click();
+    }
 });
 
 // Máscara para o campo de valor (Moeda R$) em tempo real

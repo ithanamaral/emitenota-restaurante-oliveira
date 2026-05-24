@@ -209,49 +209,19 @@
                     </select>
                 </div>
             </div>                                    
-            <button type="submit">Pré-visualizar Comprovante</button>
+            <button type="submit" id="btnAddToList">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
+            <button type="button" id="btnShowSheet" class="btn-secondary" style="margin-top: 10px;">📄 Visualizar Folha para Impressão</button>
         </form>
     </div>
 
     <!-- Área do Comprovante (Aparece na tela e na impressão) -->
     <div id="receipt-area" class="hidden">
-        <!-- Botões de Controle da Pré-visualização -->
-        <!-- 1ª Via - Cliente -->
-        <div class="print-page">
-            <div class="receipt-container">
-            <div class="receipt-header">
-                <div class="header-print">
-                    <img src="public/logo Restaurante oliveira.png" alt="logo oliveira Restaurante">
-                    <h1>RESTAURANTE OLIVEIRA REAL</h1>
-                </div>
-                <h2>Comprovante de Pedido</h2>
-                <p>Data: <span class="r-date"></span></p>
-                <p>ID do Pedido: <span class="r-id"></span></p>
-            </div>
-            <div class="receipt-body">
-                <p><strong>Nome do Cliente:</strong> <span class="r-sender"></span></p>
-                <p><strong>Endereço:</strong> <span class="r-receiver"></span></p>
-                <p><strong>Telefone:</strong> <span class="r-phone"></span></p>
-                <p><strong>Tamanho da Marmita:</strong> <span class="r-tamanho"></span></p>
-                <p><strong>Quantidade de Marmitas:</strong> <span class="r-quantity"></span></p>
-                <p><strong>Carnes:</strong> <span class="r-carnes"></span></p>
-                <p><strong>Acompanhamentos:</strong> <span class="r-acompanhamentos"></span></p>
-                <p><strong>Bebidas:</strong> <span class="r-bebidas"></span></p>
-                <p><strong>Talheres:</strong> <span class="r-talher"></span></p>
-                <p><strong>Obs:</strong> <span class="r-observation"></span></p>
-                <hr>
-                <p><strong>Valor:</strong> R$ <span class="r-amount"></span></p>
-                <p><strong>Forma de Pagamento:</strong> <span class="r-pagamento"></span></p>
-                <p><strong>Tipo de Entrega:</strong> <span class="r-entrega"></span></p>
-            </div>
-            <div class="receipt-footer">
-                <p>Ficamos Felizes em Atendê-los!</p>
-                <p>Restaurante Oliveira Real</p>
-            </div>
-        </div>
-        </div>
+        <!-- A grade de 3x2 será gerada dinamicamente aqui -->
+        <div id="receipt-grid" class="receipt-grid"></div>
+
         <div class="preview-controls no-print">
             <button id="btnPrint" class="btn-print"> Visualizar PDF / Imprimir</button>
+            <button id="btnClearQueue" class="btn-cancel">🗑️ Limpar Folha</button>
             <button id="btnBack" class="btn-back">✏️ Voltar / Editar</button>
         </div>
     </div>

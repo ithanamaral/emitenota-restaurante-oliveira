@@ -106,12 +106,40 @@ button:hover {
 }
 
 /* Estilos do Comprovante */
-.receipt-container {
+.receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas */
+    grid-template-rows: repeat(2, 1fr);    /* 2 linhas */
+    gap: 2mm;
+    width: 210mm; /* Largura A4 */
+    height: 297mm; /* Altura A4 */
+    margin: 0 auto;
     background-color: white;
-    padding: 40px;
-    border: 1px solid #ddd;
-    max-width: 750px; /* Aumenta a largura do comprovante para acompanhar o formulário */
-    margin: 0 auto 20px auto;
+}
+
+.receipt-container {
+    border: 1px dashed #ccc;
+    padding: 10px;
+    font-size: 11px; /* Fonte menor para caber */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.receipt-container h1 { font-size: 14px; margin: 5px 0; }
+.receipt-container h2 { font-size: 12px; margin: 2px 0; }
+.receipt-container p { margin: 2px 0; line-height: 1.2; }
+.receipt-container img { width: 60px !important; }
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+.header-print {
+    flex-direction: column;
+    gap: 5px;
 }
 
 .hidden {
@@ -120,8 +148,13 @@ button:hover {
 
 .receipt-header {
     text-align: center;
-    border-bottom: 2px solid #333;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
 }
 
 .total {
