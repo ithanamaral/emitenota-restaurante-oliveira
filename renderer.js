@@ -26,6 +26,9 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
 
     //Captura tamanho da marmita
     const tamanho = document.getElementById('tamanho-select').value;
+
+    //Captura forma de entrega
+    const entrega = document.getElementById('delivery-select').value;
     
     // O valor precisa tratar vírgulas como decimais e extrair o número
     const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
@@ -50,6 +53,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     fillField('r-id', transactionId);
     fillField('r-pagamento', pagamento);
     fillField('r-tamanho', tamanho);
+    fillField('r-entrega', entrega);
+
 
 
     // Esconde o formulário e mostra a pré-visualização

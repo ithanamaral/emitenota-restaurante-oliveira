@@ -133,6 +133,16 @@
                         <option value="Dinheiro">Dinheiro</option>
                     </select>
                 </div>
+            </div>
+            <!-- Entrega -->
+            <div class="form-group" id="delivery-group">
+                <label>Entrega ou Retirada?</label>
+                <div id="delivery-container">
+                    <select class="delivery-select" name="delivery" id="delivery-select">
+                        <option value="Entrega">Entrega</option>
+                        <option value="Retirada">Retirada</option>
+                    </select>
+                </div>
             </div>                                    
             <button type="submit">Pré-visualizar Comprovante</button>
         </form>
@@ -163,9 +173,10 @@
                 <hr>
                 <p><strong>Valor:</strong> R$ <span class="r-amount"></span></p>
                 <p><strong>Forma de Pagamento:</strong> <span class="r-pagamento"></span></p>
+                <p><strong>Tipo de Entrega:</strong> <span class="r-entrega"></span></p>
             </div>
             <div class="receipt-footer">
-                <p>Ficamos Felizes em Atendê-los!.</p>
+                <p>Ficamos Felizes em Atendê-los!</p>
                 <p>Restaurante Oliveira Real</p>
             </div>
         </div>
