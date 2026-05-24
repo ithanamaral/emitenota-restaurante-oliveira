@@ -21,6 +21,12 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         .filter(val => val !== "");
     const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : ''
     
+    const bebidaSelects = document.querySelectorAll('.bebida-select');
+    const bebidaValues = Array.from(bebidaSelects)
+        .map(select => select.value)
+        .filter(val => val !== "");
+    const bebidas = bebidaValues.length > 0 ? '<br>' + bebidaValues.map(val => `&bull; ${val}`).join('<br>') : '';
+
     //Captura forma de pagamento
     const pagamento = document.getElementById('pagamento-select').value;
 
@@ -59,6 +65,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     fillField('r-id', transactionId);
     fillField('r-pagamento', pagamento);
     fillField('r-tamanho', tamanho);
+    fillField('r-bebidas', bebidas);
     fillField('r-quantity', quantity);
     fillField('r-entrega', entrega);
     fillField('r-talher', talher);
@@ -123,3 +130,4 @@ function handleDynamicSelects(containerId, selectClass) {
 
 handleDynamicSelects('carnes-container', 'carne-select');
 handleDynamicSelects('acompanhamentos-container', 'acomp-select');
+handleDynamicSelects('bebidas-container', 'bebida-select');
