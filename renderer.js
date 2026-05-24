@@ -27,6 +27,9 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     //Captura tamanho da marmita
     const tamanho = document.getElementById('tamanho-select').value;
 
+    // Captura quantidade de marmitas
+    const quantity = document.getElementById('quantity-input').value;
+
     //Captura forma de entrega
     const entrega = document.getElementById('delivery-select').value;
 
@@ -56,6 +59,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     fillField('r-id', transactionId);
     fillField('r-pagamento', pagamento);
     fillField('r-tamanho', tamanho);
+    fillField('r-quantity', quantity);
     fillField('r-entrega', entrega);
     fillField('r-talher', talher);
 
