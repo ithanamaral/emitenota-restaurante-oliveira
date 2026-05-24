@@ -1,49 +1,162 @@
 const { ipcRenderer } = require('electron');
 
+let ordersQueue = []; // Buffer para guardar até 6 pedidos
+
 document.getElementById('remessaForm').addEventListener('submit', (e) => {
     e.preventDefault();
 
     // Captura os dados
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
-    
+    const phone = document.getElementById('receiverPhone').value;
+
     // Pega todas as opções selecionadas e as formata como tópicos (bullets)
     const carnesSelects = document.querySelectorAll('.carne-select');
     const carnesValues = Array.from(carnesSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const carnes = carnesValues.length > 0 ? '<br>' + carnesValues.map(val => `&bull; ${val}`).join('<br>') : '';
-    
+
     const acompSelects = document.querySelectorAll('.acomp-select');
     const acompValues = Array.from(acompSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : '';
+
+    const bebidaSelects = document.querySelectorAll('.bebida-select');
+    const bebidaValues = Array.from(bebidaSelects)
+        .map(select => select.value)
+        .filter(val => val !== "");
+
+    //Captura forma de pagamento
+    const pagamento = document.getElementById('pagamento-select').value;
+
+    //Captura tamanho da marmita
+    const tamanho = document.getElementById('tamanho-select').value;
+
+    // Captura quantidade de marmitas
+    const quantity = document.getElementById('quantity-input').value;
+
+    //Captura forma de entrega
+    const entrega = document.getElementById('delivery-select').value;
+
+    //Captura Talher ou não
+    const talher = document.getElementById('talher-select').value;
+
+    //Captura as observações
+    const observacoes = document.getElementById('observation-input').value;
     
-    // O valor precisa tratar vírgulas como decimais e extrair o número
-    const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
-    const amount = parseFloat(rawPrice) || 0;
+    // Pega o valor formatado do input
+    const amountStr = document.getElementById('pricevalue').value;
 
-    const date = new Date().toLocaleString('pt-BR');
-    const transactionId = Math.floor(Math.random() * 1000000000);
+    if (ordersQueue.length >= 6) {
+        alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
+        return;
+    }
 
-    // Função auxiliar para preencher todas as ocorrências (vias)
-    const fillField = (className, value) => {
-        document.querySelectorAll('.' + className).forEach(el => el.innerHTML = value);
+    // Cria o objeto do pedido e adiciona à fila
+    const order = {
+        sender, receiver, phone, 
+        carnes: carnesValues, 
+        acompanhamentos: acompValues, 
+        bebidas: bebidaValues,
+        pagamento, tamanho, quantity, entrega, talher, observacoes,
+        amount: amountStr,
+        date: new Date().toLocaleString('pt-BR'),
+        id: Math.floor(Math.random() * 1000000)
     };
 
-    // Preenche as informações do recibo
-    fillField('r-sender', sender);
-    fillField('r-receiver', receiver);
-    fillField('r-carnes', carnes);
-    fillField('r-acompanhamentos', acompanhamentos);
-    fillField('r-amount', amount.toFixed(2).replace('.', ','));
-    fillField('r-date', date);
-    fillField('r-id', transactionId);
+    ordersQueue.push(order);
+    updateQueueUI();
+    
+    // Limpa o formulário e remove os selects extras
+    e.target.reset();
+    document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
+});
 
-    // Esconde o formulário e mostra a pré-visualização
+function updateQueueUI() {
+    document.getElementById('queue-count').innerText = ordersQueue.length;
+}
+
+// Botão para mostrar a grade de 6 notas
+document.getElementById('btnShowSheet').addEventListener('click', () => {
+    if (ordersQueue.length === 0) {
+        alert("Adicione pelo menos um pedido à folha.");
+        return;
+    }
+    
+    const grid = document.getElementById('receipt-grid');
+    grid.innerHTML = ''; // Limpa a grade antes de renderizar
+
+    ordersQueue.forEach(order => {
+        const formatBullets = (arr) => arr.length > 0 ? '<br>' + arr.map(val => `&bull; ${val}`).join('<br>') : '';
+
+        grid.innerHTML += `
+            <div class="receipt-container">
+                <div class="receipt-actions no-print">
+                    <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
+                </div>
+                <div class="receipt-header">
+                    <img src="public/logo Restaurante oliveira.png" style="width: 50px;">
+                    <h1>OLIVEIRA REAL</h1>
+                    <p style="font-size: 9px">ID: ${order.id} | ${order.date}</p>
+                </div>
+                <div class="receipt-body">
+                    <div class="receipt-margin">
+                    <p><strong>Cliente:</strong> ${order.sender}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Telefone:</strong> ${order.phone}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Endereço:</strong> ${order.receiver}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Carnes:</strong> ${formatBullets(order.carnes)}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Acompanhamentos:</strong> ${formatBullets(order.acompanhamentos)}</p>
+                    </div>
+                    <div class="receipt-margin">
+                    <p><strong>Bebidas:</strong> ${formatBullets(order.bebidas)}</p>
+                    </div>
+                    <p><strong>Observações:</strong> ${order.observacoes}</p>
+                    <hr>
+                    <p><strong>R$ ${order.amount}</strong> (${order.pagamento})</p>
+                </div>
+            </div>`;
+    });
+
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('receipt-area').classList.remove('hidden');
+});
+
+document.getElementById('btnClearQueue').addEventListener('click', () => {
+    if(confirm("Deseja realmente limpar toda a folha?")) {
+        ordersQueue = [];
+        updateQueueUI();
+        document.getElementById('btnBack').click();
+    }
+});
+
+// Máscara para o campo de valor (Moeda R$) em tempo real
+document.getElementById('pricevalue').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    if (value === "") return;
+    
+    // Formata o número para o padrão brasileiro (ex: 1.250,50)
+    const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+    e.target.value = result;
+});
+
+// Lógica para máscara de telefone (00) 00000-0000
+document.getElementById('receiverPhone').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2"); // Coloca parênteses no DDD
+    value = value.replace(/(\d)(\d{4})$/, "$1-$2");    // Coloca hífen antes dos últimos 4 dígitos
+    
+    e.target.value = value.substring(0, 15); // Limita o tamanho máximo
 });
 
 // Botão Imprimir (Na pré-visualização)
@@ -66,22 +179,130 @@ document.getElementById('btnBack').addEventListener('click', () => {
     document.getElementById('form-container').classList.remove('hidden');
 });
 
+// Função para editar um pedido da fila
+window.editOrder = (orderId) => {
+    const orderIndex = ordersQueue.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) return;
+
+    const order = ordersQueue[orderIndex];
+    ordersQueue.splice(orderIndex, 1); // Remove da fila atual
+    updateQueueUI();
+
+    // Preenche campos de texto e selects simples
+    document.getElementById('senderName').value = order.sender;
+    document.getElementById('receiverName').value = order.receiver;
+    document.getElementById('receiverPhone').value = order.phone;
+    document.getElementById('tamanho-select').value = order.tamanho;
+    document.getElementById('quantity-input').value = order.quantity;
+    document.getElementById('pricevalue').value = order.amount;
+    document.getElementById('pagamento-select').value = order.pagamento;
+    document.getElementById('delivery-select').value = order.entrega;
+    document.getElementById('talher-select').value = order.talher;
+    document.getElementById('observation-input').value = order.observacoes;
+
+    // Reconstrói as linhas dinâmicas (Carnes, Acomp, Bebidas)
+    const rebuildDynamic = (containerId, selectClass, values) => {
+        const container = document.getElementById(containerId);
+        const templateHTML = container.querySelector('.' + selectClass).outerHTML;
+        container.innerHTML = '';
+
+        values.forEach(val => {
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = templateHTML;
+            const select = row.querySelector('.' + selectClass);
+            select.value = val;
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button'; btnRemove.className = 'btn-remove'; btnRemove.innerText = 'X';
+            btnRemove.onclick = () => row.remove();
+            row.appendChild(btnRemove);
+            container.appendChild(row);
+        });
+
+        const emptyRow = document.createElement('div');
+        emptyRow.className = 'dynamic-row'; emptyRow.innerHTML = templateHTML;
+        emptyRow.querySelector('.' + selectClass).value = "";
+        container.appendChild(emptyRow);
+    };
+
+    rebuildDynamic('carnes-container', 'carne-select', order.carnes);
+    rebuildDynamic('acompanhamentos-container', 'acomp-select', order.acompanhamentos);
+    rebuildDynamic('bebidas-container', 'bebida-select', order.bebidas);
+
+    // Volta para a tela de formulário
+    document.getElementById('btnBack').click();
+};
+
+// Função para exibir o modal de confirmação assíncrono
+function showCustomConfirm(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-confirm');
+        const msgEl = document.getElementById('confirm-message');
+        const btnYes = document.getElementById('confirm-yes');
+        const btnNo = document.getElementById('confirm-no');
+
+        msgEl.innerText = message;
+        modal.classList.remove('hidden');
+
+        const handleResponse = (response) => {
+            modal.classList.add('hidden');
+            btnYes.removeEventListener('click', onYes);
+            btnNo.removeEventListener('click', onNo);
+            resolve(response);
+        };
+
+        const onYes = () => handleResponse(true);
+        const onNo = () => handleResponse(false);
+
+        btnYes.addEventListener('click', onYes);
+        btnNo.addEventListener('click', onNo);
+    });
+}
+
 // Lógica para adicionar selects dinamicamente
 function handleDynamicSelects(containerId, selectClass) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
-    container.addEventListener('change', (e) => {
-        if (e.target.classList.contains(selectClass)) {
-            const selects = container.querySelectorAll('.' + selectClass);
-            const lastSelect = selects[selects.length - 1];
+    container.addEventListener('change', async (e) => {
+        const select = e.target;
+        if (select.classList.contains(selectClass)) {
+            const newValue = select.value;
+            if (newValue === "") return;
+
+            // Verifica duplicatas
+            const allSelects = container.querySelectorAll('.' + selectClass);
+            let duplicateCount = 0;
+            allSelects.forEach(s => {
+                if (s.value === newValue) duplicateCount++;
+            });
+
+            if (duplicateCount > 1) {
+                const keep = await showCustomConfirm(`O item "${newValue}" já foi selecionado. Deseja manter a duplicata?`);
+                if (!keep) {
+                    select.value = "";
+                    return;
+                }
+            }
+
+            const rows = container.querySelectorAll('.dynamic-row');
+            const currentRow = select.closest('.dynamic-row');
+            const isLast = currentRow === rows[rows.length - 1];
             
-            // Se o último select tiver um valor selecionado (diferente do placeholder), cria um novo
-            if (lastSelect.value !== "") {
-                const newSelect = lastSelect.cloneNode(true);
-                newSelect.value = ""; // Reseta o valor para o placeholder
-                newSelect.style.marginTop = "10px"; // Adiciona espaçamento
-                container.appendChild(newSelect);
+            if (isLast) {
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove';
+                btnRemove.innerText = 'X';
+                btnRemove.onclick = () => currentRow.remove();
+                currentRow.appendChild(btnRemove);
+
+                const newRow = document.createElement('div');
+                newRow.className = 'dynamic-row';
+                const newSelect = select.cloneNode(true);
+                newSelect.value = "";
+                newRow.appendChild(newSelect);
+                container.appendChild(newRow);
             }
         }
     });
@@ -89,3 +310,67 @@ function handleDynamicSelects(containerId, selectClass) {
 
 handleDynamicSelects('carnes-container', 'carne-select');
 handleDynamicSelects('acompanhamentos-container', 'acomp-select');
+handleDynamicSelects('bebidas-container', 'bebida-select');
+
+// Função para preencher o formulário com dados aleatórios
+function fillFormWithRandomData() {
+    const names = ["Íthan Amaral", "Ana Souza", "Carlos Alberto", "Beatriz Lima", "Ricardo Santos", "Mariana Costa"];
+    const addresses = ["Rua das Flores, 123", "Av. Principal, 500", "Praça da Matriz, 10", "Alameda das Palmeiras, 88"];
+    
+    // Preenche campos básicos
+    const name = names[Math.floor(Math.random() * names.length)];
+    const address = addresses[Math.floor(Math.random() * addresses.length)];
+    
+    document.getElementById('senderName').value = name;
+    document.getElementById('receiverName').value = address;
+    
+    // Simula digitação para a máscara de telefone funcionar
+    const phoneInput = document.getElementById('receiverPhone');
+    phoneInput.value = "319" + Math.floor(10000000 + Math.random() * 90000000);
+    phoneInput.dispatchEvent(new Event('input'));
+
+    // Simula digitação para a máscara de valor funcionar
+    const priceInput = document.getElementById('pricevalue');
+    priceInput.value = Math.floor(2500 + Math.random() * 5000);
+    priceInput.dispatchEvent(new Event('input'));
+
+    // Sorteia itens nos selects (Carnes e Acompanhamentos)
+    const pickRandomOption = (containerId, selectClass) => {
+        const container = document.getElementById(containerId);
+        const selects = container.querySelectorAll('.' + selectClass);
+        const lastSelect = selects[selects.length - 1];
+        
+        const options = Array.from(lastSelect.options).filter(opt => opt.value !== "");
+        const randomOpt = options[Math.floor(Math.random() * options.length)];
+        
+        lastSelect.value = randomOpt.value;
+        lastSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    // Seleciona 2 carnes e 2 acompanhamentos aleatórios
+    pickRandomOption('carnes-container', 'carne-select');
+    setTimeout(() => pickRandomOption('carnes-container', 'carne-select'), 200); // Espera a nova linha ser criada
+    pickRandomOption('acompanhamentos-container', 'acomp-select');
+    
+    document.getElementById('observation-input').value = "Caprichar no feijão! Teste automático.";
+}
+
+// Evento do botão "Mágico" de preenchimento
+document.getElementById('btnQuickFill').addEventListener('click', fillFormWithRandomData);
+
+// Melhora o "Testar Layout" para simular o processo real de 6 notas
+document.getElementById('btnTestLayout').addEventListener('click', async () => {
+    if(!confirm("Isso irá limpar sua fila e gerar 6 pedidos reais para teste. Continuar?")) return;
+    
+    ordersQueue = [];
+    updateQueueUI();
+
+    for(let i = 0; i < 6; i++) {
+        fillFormWithRandomData();
+        // Aguarda um pouco para os processos dinâmicos e envia o formulário
+        await new Promise(r => setTimeout(r, 300));
+        document.getElementById('remessaForm').dispatchEvent(new Event('submit'));
+    }
+    
+    document.getElementById('btnShowSheet').click();
+});

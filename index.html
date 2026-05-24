@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emissor de Remessa Internacional</title>
+    <title>Sistema de Notas Restaurante Oliveira Real</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <!-- Área de Formulário (Não aparece na impressão) -->
     <div id="form-container" class="container no-print">
         <div class="header">
-            <img src="public/logo Restaurante oliveira.png" alt="logo oliveira Restaurante">
+            <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
             <h1>Sistema de Notas Restaurante Oliveira Real</h1>
         </div>
         <form id="remessaForm">
@@ -25,123 +25,220 @@
                 <label>Endereço:</label>
                 <input type="text" id="receiverName" required>
             </div>
+            <!-- TELEFONE -->
+            <div class="form-group">
+                <label>Telefone:</label>
+                <input type="text" id="receiverPhone" placeholder="(00) 00000-0000" required>
+            </div>
+            <!-- TAMANHOS -->
+            <div class="form-group" id="tamanho-group">
+                <label>Qual o tamanho da marmita</label>
+                <div id="tamanho-container">
+                    <select class="tamanho-select" name="tamanho" id="tamanho-select">
+                        <option value="Pequena">Pequena</option>
+                        <option value="Média">Média</option>
+                        <option value="Grande">Grande</option>
+                    </select>
+                </div>
+            </div>
+            <!-- QUANTIDADE -->
+            <div class="form-group">
+                <label>Quantidade de marmitas:</label>
+                <input type="number" id="quantity-input" value="1" min="1" required>
+            </div>
             <!-- CARNES -->
             <div class="form-group" id="carnes-group">
                 <label>Escolha as carnes na lista</label>
                 <div id="carnes-container">
+                    <div class="dynamic-row">
                     <select class="carne-select" name="carnes">
                         <option value="" disabled selected>Selecione uma carne...</option>
                         <option value="nenhuma das opções">Sem carnes</option>
-                        <option value="Feijoada Real">Feijoada Real</option>
-                        <option value="Filé de peixe">Filé de peixe</option>
-                        <option value="Filé de frango grelhado">Filé de frango grelhado</option>
-                        <option value="⁠Filé de frango à milanesa">⁠Filé de frango à milanesa</option>
-                        <option value="coxinha da asa">Coxinha da Asa</option>
-                        <option value="⁠parmegiana">Parmegiana</option>
-                        <option value="costelinha suína">Costelinha suína</option>
-                        <option value="⁠iscas de fígado bovino">Iscas de fígado bovino</option>
-                        <option value="⁠bife de pernil acebolado">⁠Bife de pernil acebolado</option>
                         <option value="⁠bife bovino acebolado">⁠Bife bovino acebolado</option>
-                        <option value="⁠costela bovina cozida">⁠Costela bovina cozida</option>
-                        <option value="⁠fraldinha bovina assada">⁠Fraldinha bovina assada</option>
-                        <option value="maçã de peito assada">maçã de peito assada</option>
-                        <option value="⁠sobrecoxa de frango">⁠Sobrecoxa de frango</option>
-                        <option value="⁠lombo suíno">⁠Lombo suíno</option>
-                        <option value="paleta bovina cozida">Paleta bovina cozida</option>
-                        <option value="linguiça suína assada">⁠Linguiça suína assada</option>
+                        <option value="⁠bife de pernil acebolado">⁠Bife de pernil acebolado</option>
                         <option value="⁠Burguer sabor picanha grelhado 90g">⁠Burguer sabor picanha grelhado 90g</option>
+                        <option value="⁠carne moída">⁠Carne Moída</option>
+                        <option value="⁠costela bovina cozida">⁠Costela bovina cozida</option>
+                        <option value="costelinha suína">Costelinha suína</option>
+                        <option value="coxinha da asa">Coxinha da Asa</option>
+                        <option value="espaguete à bolonhesa">espaguete à bolonhesa</option>
+                        <option value="Feijoada Real">Feijoada Real</option>
+                        <option value="⁠Filé de frango à milanesa">⁠Filé de frango à milanesa</option>
+                        <option value="Filé de frango grelhado">Filé de frango grelhado</option>
+                        <option value="Filé de peixe">Filé de peixe</option>
+                        <option value="⁠fraldinha bovina assada">⁠Fraldinha bovina assada</option>
+                        <option value="⁠iscas de fígado bovino">Iscas de fígado bovino</option>
+                        <option value="linguiça suína assada">⁠Linguiça suína assada</option>
+                        <option value="⁠lombo suíno">⁠Lombo suíno</option>
+                        <option value="maçã de peito assada">maçã de peito assada</option>
+                        <option value="Omelete napolitano  (2 ovos fritos + presunto e queijo)">Omelete napolitano  (2 ovos fritos + presunto e queijo)</option>
                         <option value="⁠Ovos fritos (gema dura)">⁠Ovos fritos (gema dura)</option>
                         <option value="⁠Ovos fritos (gema mole)">⁠Ovos fritos (gema mole)</option>
-                        <option value="Omelete napolitano  (2 ovos fritos + presunto e queijo)">Omelete napolitano  (2 ovos fritos + presunto e queijo)</option>
+                        <option value="paleta bovina cozida">Paleta bovina cozida</option>
+                        <option value="⁠parmegiana">Parmegiana</option>
+                        <option value="⁠sobrecoxa de frango">⁠Sobrecoxa de frango</option>
                         <option value="⁠strogonoff de frango">⁠Strogonoff de frango</option>
-                        <option value="⁠carne moída">⁠Bife de pernil acebolado</option>
-                        <option value="espaguete à bolonhesa">espaguete à bolonhesa</option>          
                     </select>
+                    </div>
                 </div>
             </div>
             <!-- ACOMPANHAMENTOS -->
             <div class="form-group" id="acompanhamentos-group">
                 <label>Escolha o acompanhamento</label>
                 <div id="acompanhamentos-container">
+                    <div class="dynamic-row">
                     <select class="acomp-select" name="acompanhamentos">
                         <option value="" disabled selected>Selecione um acompanhamento...</option>
                         <option value="nenhuma das opções">Sem acompanhamentos</option>
-                        <option value="Arroz">Arroz</option>
-                        <option value="Feijão">Feijão</option>
-                        <option value="Tropeiro">Tropeiro</option>
-                        <option value="Tutu de feijão">Tutu de feijão</option>
-                        <option value="Feijoada francesa">Feijoada francesa</option>
-                        <option value="Macarrão alho e óleo">Macarrão alho e óleo</option>
-                        <option value="Quiabo">Quiabo</option>
-                        <option value="Angu temperado">Angu temperado</option>
-                        <option value="Cenoura com vagem">Cenoura com vagem</option>
-                        <option value="Mix de legumes salteados">Mix de legumes salteados</option>
-                        <option value="Chuchu ao alho">Chuchu ao alho</option>
-                        <option value="Abobrinha italiana">Abobrinha italiana</option>
-                        <option value="Brócolis ao alho">Brócolis ao alho</option>
-                        <option value="Batata frita">Batata frita</option>
-                        <option value="Batata palha">Batata palha</option>
-                        <option value="Batata inglesa assada">Batata inglesa assada</option>
-                        <option value="Batata salteada">Batata salteada</option>
-                        <option value="Batata doce assada">Batata doce assada</option>
-                        <option value="Couve">Couve</option>
-                        <option value="Mandioca frita">Mandioca frita</option>
-                        <option value="Mandioca salteada na manteiga">Mandioca salteada na manteiga</option>
-                        <option value="Jiló refogado">Jiló refogado</option>
                         <option value="Abóbora moranga">Abóbora moranga</option>
-                        <option value="Purê de abóbora moranga">Purê de abóbora moranga</option>
-                        <option value="Purê de batata">Purê de batata</option>
+                        <option value="Abobrinha italiana">Abobrinha italiana</option>
+                        <option value="Angu temperado">Angu temperado</option>
+                        <option value="Arroz">Arroz</option>
+                        <option value="Batata doce assada">Batata doce assada</option>
+                        <option value="Batata frita">Batata frita</option>
+                        <option value="Batata inglesa assada">Batata inglesa assada</option>
+                        <option value="Batata palha">Batata palha</option>
+                        <option value="Batata salteada">Batata salteada</option>
+                        <option value="Beterraba">Beterraba</option>
+                        <option value="Brócolis ao alho">Brócolis ao alho</option>
+                        <option value="Cenoura com vagem">Cenoura com vagem</option>
+                        <option value="Chuchu ao alho">Chuchu ao alho</option>
+                        <option value="Couve">Couve</option>
                         <option value="Farofa de cenoura">Farofa de cenoura</option>
                         <option value="Farofa dourada">Farofa dourada</option>
-                        <option value="Beterraba">Beterraba</option>
-                        <option value="Salpicão">Salpicão</option>
-                        <option value="Maionese de batata">Maionese de batata</option>
+                        <option value="Feijão">Feijão</option>
+                        <option value="Feijoada francesa">Feijoada francesa</option>
                         <option value="Fruta do dia">Fruta do dia</option>
+                        <option value="Jiló refogado">Jiló refogado</option>
+                        <option value="Macarrão alho e óleo">Macarrão alho e óleo</option>
+                        <option value="Mandioca frita">Mandioca frita</option>
+                        <option value="Mandioca salteada na manteiga">Mandioca salteada na manteiga</option>
+                        <option value="Maionese de batata">Maionese de batata</option>
+                        <option value="Mix de legumes salteados">Mix de legumes salteados</option>
+                        <option value="Purê de abóbora moranga">Purê de abóbora moranga</option>
+                        <option value="Purê de batata">Purê de batata</option>
+                        <option value="Quiabo">Quiabo</option>
                         <option value="Saladas do dia">Saladas do dia</option>
+                        <option value="Salpicão">Salpicão</option>
+                        <option value="Tropeiro">Tropeiro</option>
+                        <option value="Tutu de feijão">Tutu de feijão</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+            <!-- BEBIDAS -->
+            <div class="form-group" id="bebidas-group">
+                <label>Escolha as bebidas</label>
+                <div id="bebidas-container">
+                    <div class="dynamic-row">
+                    <select class="bebida-select" name="bebidas">
+                        <option value="" disabled selected>Selecione uma bebida...</option>
+                        <option value="Acerola (Suco natural)">Acerola (Suco natural)</option>
+                        <option value="Água com gás 500 ml">Água com gás 500 ml</option>
+                        <option value="Água sem gás 500 ml">Água sem gás 500 ml</option>
+                        <option value="Coca cola (2lt)">Coca cola (2lt)</option>
+                        <option value="Coca cola lata">Coca cola lata</option>
+                        <option value="Coca cola original (600 ml)">Coca cola original (600 ml)</option>
+                        <option value="Coca cola zero (600 ml)">Coca cola zero (600 ml)</option>
+                        <option value="Coca cola zero lata">Coca cola zero lata</option>
+                        <option value="Fanta guaraná (2lt)">Fanta guaraná (2lt)</option>
+                        <option value="Fanta guaraná (Lata)">Fanta guaraná (Lata)</option>
+                        <option value="Fanta laranja (2lt)">Fanta laranja (2lt)</option>
+                        <option value="Fanta laranja (600 ml)">Fanta laranja (600 ml)</option>
+                        <option value="Fanta laranja (Lata)">Fanta laranja (Lata)</option>
+                        <option value="Fanta maracujá (Lata)">Fanta maracujá (Lata)</option>
+                        <option value="Fanta uva (Lata)">Fanta uva (Lata)</option>
+                        <option value="Goiaba (Suco lata)">Goiaba (Suco lata)</option>
+                        <option value="Goiaba (Suco natural)">Goiaba (Suco natural)</option>
+                        <option value="Guarapan (2lt)">Guarapan (2lt)</option>
+                        <option value="Laranja (Suco natural)">Laranja (Suco natural)</option>
+                        <option value="Limão (Suco natural)">Limão (Suco natural)</option>
+                        <option value="Manga (Suco lata)">Manga (Suco lata)</option>
+                        <option value="Maracujá (Suco lata)">Maracujá (Suco lata)</option>
+                        <option value="Maracujá (Suco natural)">Maracujá (Suco natural)</option>
+                        <option value="Mate couro original (1lt)">Mate couro original (1lt)</option>
+                        <option value="Mate Couro zero (1lt)">Mate Couro zero (1lt)</option>
+                        <option value="Pêssego (Suco lata)">Pêssego (Suco lata)</option>
+                        <option value="Sprite (2lt)">Sprite (2lt)</option>
+                        <option value="Sprite (600 ml)">Sprite (600 ml)</option>
+                        <option value="Sprite (Lata)">Sprite (Lata)</option>
+                        <option value="Uva (Suco lata)">Uva (Suco lata)</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Talheres -->
+            <div class="form-group" id="talheres-group">
+                <label>Talheres?</label>
+                <div id="talher-container">
+                    <select class="talher-select" name="talher" id="talher-select">
+                        <option value="Sim">Sim</option>
+                        <option value="Não">Não</option>
                     </select>
                 </div>
             </div>
+            <!-- OBS -->
+            <div class="form-group" id="observation-group">
+                <label>Observações?</label>
+                <textarea id="observation-input" rows="3" placeholder="Ex: Sem cebola, caprichar no feijão..."></textarea>
+            </div>             
             <!-- VALORES -->
             <div class="form-group">
                 <label>Valor do Pedido:</label>
                 <input type="text" id="pricevalue" required>
-            </div>            
-            <button type="submit">Pré-visualizar Comprovante</button>
+            </div>
+            <!-- Pagamento -->
+            <div class="form-group">
+                <label>Selecione a forma de pagamento:</label>
+                <div id="pagamento-container">
+                    <select class="pagamento-select" name="pagamento" id="pagamento-select">
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Entrega -->
+            <div class="form-group" id="delivery-group">
+                <label>Entrega ou Retirada?</label>
+                <div id="delivery-container">
+                    <select class="delivery-select" name="delivery" id="delivery-select">
+                        <option value="Entrega">Entrega</option>
+                        <option value="Retirada">Retirada</option>
+                    </select>
+                </div>
+            </div>                                    
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" id="btnAddToList" style="flex: 2;">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
+                <button type="button" id="btnQuickFill" class="btn-secondary" style="flex: 1; background-color: #6f42c1;">🪄 Preencher</button>
+            </div>
+            <button type="button" id="btnShowSheet" class="btn-secondary" style="margin-top: 10px;">📄 Visualizar Folha para Impressão</button>
+            <button type="button" id="btnTestLayout" class="btn-secondary" style="margin-top: 10px; background-color: #17a2b8;">🧪 Testar Layout (6 notas)</button>
         </form>
     </div>
 
     <!-- Área do Comprovante (Aparece na tela e na impressão) -->
     <div id="receipt-area" class="hidden">
-        <!-- Botões de Controle da Pré-visualização -->
-        <!-- 1ª Via - Cliente -->
-        <div class="print-page">
-            <div class="receipt-container">
-            <div class="receipt-header">
-                <div class="header-print">
-                    <img src="public/logo Restaurante oliveira.png" alt="logo oliveira Restaurante">
-                    <h1>RESTAURANTE OLIVEIRA REAL</h1>
-                </div>
-                <h2>Comprovante de Pedido</h2>
-                <p>Data: <span class="r-date"></span></p>
-                <p>ID do Pedido: <span class="r-id"></span></p>
-            </div>
-            <div class="receipt-body">
-                <p><strong>Nome do Cliente:</strong> <span class="r-sender"></span></p>
-                <p><strong>Endereço:</strong> <span class="r-receiver"></span></p>
-                <p><strong>Carnes:</strong> <span class="r-carnes"></span></p>
-                <p><strong>Acompanhamentos:</strong> <span class="r-acompanhamentos"></span></p>
-                <hr>
-                <p><strong>Valor:</strong> R$ <span class="r-amount"></span></p>
-            </div>
-            <div class="receipt-footer">
-                <p>Ficamos Felizes em Atendê-los!.</p>
-                <p>Restaurante Oliveira Real</p>
-            </div>
-        </div>
-        </div>
+        <!-- A grade de 3x2 será gerada dinamicamente aqui -->
+        <div id="receipt-grid" class="receipt-grid"></div>
+
         <div class="preview-controls no-print">
             <button id="btnPrint" class="btn-print"> Visualizar PDF / Imprimir</button>
+            <button id="btnClearQueue" class="btn-cancel">🗑️ Limpar Folha</button>
             <button id="btnBack" class="btn-back">✏️ Voltar / Editar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Personalizado -->
+    <div id="custom-confirm" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>⚠️ Item Duplicado</h3>
+            <p id="confirm-message"></p>
+            <div class="modal-buttons">
+                <button id="confirm-yes" class="btn-confirm">Sim, manter</button>
+                <button id="confirm-no" class="btn-cancel">Não, remover</button>
+            </div>
         </div>
     </div>
 
