@@ -108,22 +108,76 @@ document.getElementById('btnBack').addEventListener('click', () => {
     document.getElementById('form-container').classList.remove('hidden');
 });
 
+// Função para exibir o modal de confirmação assíncrono
+function showCustomConfirm(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-confirm');
+        const msgEl = document.getElementById('confirm-message');
+        const btnYes = document.getElementById('confirm-yes');
+        const btnNo = document.getElementById('confirm-no');
+
+        msgEl.innerText = message;
+        modal.classList.remove('hidden');
+
+        const handleResponse = (response) => {
+            modal.classList.add('hidden');
+            btnYes.removeEventListener('click', onYes);
+            btnNo.removeEventListener('click', onNo);
+            resolve(response);
+        };
+
+        const onYes = () => handleResponse(true);
+        const onNo = () => handleResponse(false);
+
+        btnYes.addEventListener('click', onYes);
+        btnNo.addEventListener('click', onNo);
+    });
+}
+
 // Lógica para adicionar selects dinamicamente
 function handleDynamicSelects(containerId, selectClass) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
-    container.addEventListener('change', (e) => {
-        if (e.target.classList.contains(selectClass)) {
-            const selects = container.querySelectorAll('.' + selectClass);
-            const lastSelect = selects[selects.length - 1];
+    container.addEventListener('change', async (e) => {
+        const select = e.target;
+        if (select.classList.contains(selectClass)) {
+            const newValue = select.value;
+            if (newValue === "") return;
+
+            // Verifica duplicatas
+            const allSelects = container.querySelectorAll('.' + selectClass);
+            let duplicateCount = 0;
+            allSelects.forEach(s => {
+                if (s.value === newValue) duplicateCount++;
+            });
+
+            if (duplicateCount > 1) {
+                const keep = await showCustomConfirm(`O item "${newValue}" já foi selecionado. Deseja manter a duplicata?`);
+                if (!keep) {
+                    select.value = "";
+                    return;
+                }
+            }
+
+            const rows = container.querySelectorAll('.dynamic-row');
+            const currentRow = select.closest('.dynamic-row');
+            const isLast = currentRow === rows[rows.length - 1];
             
-            // Se o último select tiver um valor selecionado (diferente do placeholder), cria um novo
-            if (lastSelect.value !== "") {
-                const newSelect = lastSelect.cloneNode(true);
-                newSelect.value = ""; // Reseta o valor para o placeholder
-                newSelect.style.marginTop = "10px"; // Adiciona espaçamento
-                container.appendChild(newSelect);
+            if (isLast) {
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove';
+                btnRemove.innerText = 'X';
+                btnRemove.onclick = () => currentRow.remove();
+                currentRow.appendChild(btnRemove);
+
+                const newRow = document.createElement('div');
+                newRow.className = 'dynamic-row';
+                const newSelect = select.cloneNode(true);
+                newSelect.value = "";
+                newRow.appendChild(newSelect);
+                container.appendChild(newRow);
             }
         }
     });

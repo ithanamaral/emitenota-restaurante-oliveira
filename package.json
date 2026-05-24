@@ -14,7 +14,7 @@
   "author": "Íthan P. Amaral",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron --trace-deprecation .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "electron-builder"
   },
@@ -25,10 +25,13 @@
   },
   "build": {
     "appId": "com.ithan.emitenota",
-    "productName": "EmiteNota",
+    "productName": "Sistema de Notas Restaurante Oliveira Real",
     "win": {
-      "target": "nsis",
-      "icon": "icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "logo-oliveira.ico",
       "forceCodeSigning": false
     }
   }
