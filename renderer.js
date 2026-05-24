@@ -43,7 +43,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const talher = document.getElementById('talher-select').value;
     
     // O valor precisa tratar vírgulas como decimais e extrair o número
-    const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
+    // Remove pontos de milhar e converte a vírgula decimal em ponto para o parseFloat
+    const rawPrice = document.getElementById('pricevalue').value.replace(/\./g, '').replace(',', '.');
     const amount = parseFloat(rawPrice) || 0;
 
     const date = new Date().toLocaleString('pt-BR');
