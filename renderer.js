@@ -41,7 +41,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
 
     //Captura Talher ou não
     const talher = document.getElementById('talher-select').value;
-    
+
     //Captura as observações
     const observacoes = document.getElementById('observation-input').value;
     
@@ -82,6 +82,16 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     // Esconde o formulário e mostra a pré-visualização
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('receipt-area').classList.remove('hidden');
+});
+
+// Máscara para o campo de valor (Moeda R$) em tempo real
+document.getElementById('pricevalue').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    if (value === "") return;
+    
+    // Formata o número para o padrão brasileiro (ex: 1.250,50)
+    const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+    e.target.value = result;
 });
 
 // Lógica para máscara de telefone (00) 00000-0000
