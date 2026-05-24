@@ -209,7 +209,10 @@
                     </select>
                 </div>
             </div>                                    
-            <button type="submit" id="btnAddToList">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" id="btnAddToList" style="flex: 2;">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
+                <button type="button" id="btnQuickFill" class="btn-secondary" style="flex: 1; background-color: #6f42c1;">🪄 Preencher</button>
+            </div>
             <button type="button" id="btnShowSheet" class="btn-secondary" style="margin-top: 10px;">📄 Visualizar Folha para Impressão</button>
             <button type="button" id="btnTestLayout" class="btn-secondary" style="margin-top: 10px; background-color: #17a2b8;">🧪 Testar Layout (6 notas)</button>
         </form>

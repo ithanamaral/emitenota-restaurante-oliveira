@@ -263,19 +263,37 @@ button:hover {
 /* Regras de Impressão */
 @media print {
     .no-print { display: none !important; }
+    
+    #receipt-area { 
+        background: none !important; 
+        padding: 0 !important; 
+    }
+
     body { 
         background-color: white; 
         margin: 0; 
         padding: 0; 
     }
+
     .receipt-grid {
         margin: 0;
         width: 210mm;
         height: 297mm;
         gap: 0; /* Removemos o gap na impressão para garantir o encaixe perfeito */
+        box-shadow: none !important;
+        zoom: 1 !important; /* RESETA O ZOOM: O segredo para não quebrar a folha */
     }
+
     .receipt-container {
         border: 1px solid #000; /* Borda sólida preta para melhor visibilidade no papel */
+        padding: 5px; /* Reduz o preenchimento interno na impressão */
         page-break-inside: avoid;
     }
+
+    .receipt-margin {
+        margin-top: 20px !important; /* Reduz drasticamente o espaçamento entre itens no papel */
+    }
+
+    .receipt-container h1 { font-size: 12px; margin: 2px 0; }
+    .receipt-container p { font-size: 10px; }
 }

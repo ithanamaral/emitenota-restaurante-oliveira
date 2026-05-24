@@ -312,28 +312,65 @@ handleDynamicSelects('carnes-container', 'carne-select');
 handleDynamicSelects('acompanhamentos-container', 'acomp-select');
 handleDynamicSelects('bebidas-container', 'bebida-select');
 
-// Função para testar o layout da folha com 6 notas fictícias
-document.getElementById('btnTestLayout').addEventListener('click', () => {
-    ordersQueue = []; // Limpa a fila atual para o teste
-    for(let i = 1; i <= 6; i++) {
-        ordersQueue.push({
-            sender: `Cliente de Teste ${i}`,
-            receiver: `Rua Exemplo de Teste, nº ${i}00 - Bairro Centro`,
-            phone: `(31) 98888-000${i}`,
-            carnes: ['Bife bovino acebolado', 'Carne Moída'],
-            acompanhamentos: ['Arroz', 'Feijão', 'Batata frita', 'Couve'],
-            bebidas: ['Coca cola lata'],
-            pagamento: 'Pix',
-            tamanho: 'Média',
-            quantity: '1',
-            entrega: 'Entrega',
-            talher: 'Sim',
-            observacoes: 'Esta é uma observação de teste para verificar como o texto se comporta no layout de 6 divisões.',
-            amount: '35,00',
-            date: new Date().toLocaleString('pt-BR'),
-            id: 1000 + i
-        });
-    }
+// Função para preencher o formulário com dados aleatórios
+function fillFormWithRandomData() {
+    const names = ["Íthan Amaral", "Ana Souza", "Carlos Alberto", "Beatriz Lima", "Ricardo Santos", "Mariana Costa"];
+    const addresses = ["Rua das Flores, 123", "Av. Principal, 500", "Praça da Matriz, 10", "Alameda das Palmeiras, 88"];
+    
+    // Preenche campos básicos
+    const name = names[Math.floor(Math.random() * names.length)];
+    const address = addresses[Math.floor(Math.random() * addresses.length)];
+    
+    document.getElementById('senderName').value = name;
+    document.getElementById('receiverName').value = address;
+    
+    // Simula digitação para a máscara de telefone funcionar
+    const phoneInput = document.getElementById('receiverPhone');
+    phoneInput.value = "319" + Math.floor(10000000 + Math.random() * 90000000);
+    phoneInput.dispatchEvent(new Event('input'));
+
+    // Simula digitação para a máscara de valor funcionar
+    const priceInput = document.getElementById('pricevalue');
+    priceInput.value = Math.floor(2500 + Math.random() * 5000);
+    priceInput.dispatchEvent(new Event('input'));
+
+    // Sorteia itens nos selects (Carnes e Acompanhamentos)
+    const pickRandomOption = (containerId, selectClass) => {
+        const container = document.getElementById(containerId);
+        const selects = container.querySelectorAll('.' + selectClass);
+        const lastSelect = selects[selects.length - 1];
+        
+        const options = Array.from(lastSelect.options).filter(opt => opt.value !== "");
+        const randomOpt = options[Math.floor(Math.random() * options.length)];
+        
+        lastSelect.value = randomOpt.value;
+        lastSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    // Seleciona 2 carnes e 2 acompanhamentos aleatórios
+    pickRandomOption('carnes-container', 'carne-select');
+    setTimeout(() => pickRandomOption('carnes-container', 'carne-select'), 200); // Espera a nova linha ser criada
+    pickRandomOption('acompanhamentos-container', 'acomp-select');
+    
+    document.getElementById('observation-input').value = "Caprichar no feijão! Teste automático.";
+}
+
+// Evento do botão "Mágico" de preenchimento
+document.getElementById('btnQuickFill').addEventListener('click', fillFormWithRandomData);
+
+// Melhora o "Testar Layout" para simular o processo real de 6 notas
+document.getElementById('btnTestLayout').addEventListener('click', async () => {
+    if(!confirm("Isso irá limpar sua fila e gerar 6 pedidos reais para teste. Continuar?")) return;
+    
+    ordersQueue = [];
     updateQueueUI();
+
+    for(let i = 0; i < 6; i++) {
+        fillFormWithRandomData();
+        // Aguarda um pouco para os processos dinâmicos e envia o formulário
+        await new Promise(r => setTimeout(r, 300));
+        document.getElementById('remessaForm').dispatchEvent(new Event('submit'));
+    }
+    
     document.getElementById('btnShowSheet').click();
 });
