@@ -42,6 +42,9 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     //Captura Talher ou não
     const talher = document.getElementById('talher-select').value;
     
+    //Captura as observações
+    const observacoes = document.getElementById('observation-input').value;
+    
     // O valor precisa tratar vírgulas como decimais e extrair o número
     // Remove pontos de milhar e converte a vírgula decimal em ponto para o parseFloat
     const rawPrice = document.getElementById('pricevalue').value.replace(/\./g, '').replace(',', '.');
@@ -70,6 +73,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     fillField('r-quantity', quantity);
     fillField('r-entrega', entrega);
     fillField('r-talher', talher);
+    fillField('r-observation', observacoes);
+
 
 
 
