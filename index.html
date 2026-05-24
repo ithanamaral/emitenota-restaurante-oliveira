@@ -25,6 +25,22 @@
                 <label>Endereço:</label>
                 <input type="text" id="receiverName" required>
             </div>
+            <!-- TELEFONE -->
+            <div class="form-group">
+                <label>Telefone:</label>
+                <input type="text" id="receiverPhone" placeholder="(00) 00000-0000" required>
+            </div>
+            <!-- TAMANHOS -->
+            <div class="form-group" id="tamanho-group">
+                <label>Qual o tamanho da marmita</label>
+                <div id="tamanho-container">
+                    <select class="tamanho-select" name="tamanho" id="tamanho-select">
+                        <option value="Pequena">Pequena</option>
+                        <option value="Média">Média</option>
+                        <option value="Grande">Grande</option>
+                    </select>
+                </div>
+            </div>
             <!-- CARNES -->
             <div class="form-group" id="carnes-group">
                 <label>Escolha as carnes na lista</label>
@@ -54,7 +70,7 @@
                         <option value="⁠Ovos fritos (gema mole)">⁠Ovos fritos (gema mole)</option>
                         <option value="Omelete napolitano  (2 ovos fritos + presunto e queijo)">Omelete napolitano  (2 ovos fritos + presunto e queijo)</option>
                         <option value="⁠strogonoff de frango">⁠Strogonoff de frango</option>
-                        <option value="⁠carne moída">⁠Bife de pernil acebolado</option>
+                        <option value="⁠carne moída">⁠Carne Moída</option>
                         <option value="espaguete à bolonhesa">espaguete à bolonhesa</option>          
                     </select>
                 </div>
@@ -105,7 +121,19 @@
             <div class="form-group">
                 <label>Valor do Pedido:</label>
                 <input type="text" id="pricevalue" required>
-            </div>            
+            </div>
+            <!-- Pagamento -->
+            <div class="form-group">
+                <label>Selecione a forma de pagamento:</label>
+                <div id="pagamento-container">
+                    <select class="pagamento-select" name="carnes" id="pagamento-select">
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+            </div>                                    
             <button type="submit">Pré-visualizar Comprovante</button>
         </form>
     </div>
@@ -128,10 +156,13 @@
             <div class="receipt-body">
                 <p><strong>Nome do Cliente:</strong> <span class="r-sender"></span></p>
                 <p><strong>Endereço:</strong> <span class="r-receiver"></span></p>
+                <p><strong>Telefone:</strong> <span class="r-phone"></span></p>
+                <p><strong>Tamanho da Marmita:</strong> <span class="r-tamanho"></span></p>
                 <p><strong>Carnes:</strong> <span class="r-carnes"></span></p>
                 <p><strong>Acompanhamentos:</strong> <span class="r-acompanhamentos"></span></p>
                 <hr>
                 <p><strong>Valor:</strong> R$ <span class="r-amount"></span></p>
+                <p><strong>Forma de Pagamento:</strong> <span class="r-pagamento"></span></p>
             </div>
             <div class="receipt-footer">
                 <p>Ficamos Felizes em Atendê-los!.</p>
