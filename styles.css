@@ -28,7 +28,7 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
+    max-width: 750px; /* Aumenta a largura total do formulário na tela */
     margin: 0 auto 20px auto;
 }
 
@@ -42,12 +42,18 @@ label {
     font-weight: bold;
 }
 
-input, select {
+input, select, textarea {
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+textarea {
+    resize: vertical; /* Permite aumentar a altura, mas trava a largura para não quebrar o layout */
+    font-family: inherit; /* Garante que a fonte seja a mesma do resto do app */
+    min-height: 100px;
 }
 
 button {
@@ -70,7 +76,7 @@ button:hover {
     background-color: white;
     padding: 40px;
     border: 1px solid #ddd;
-    max-width: 600px;
+    max-width: 750px; /* Aumenta a largura do comprovante para acompanhar o formulário */
     margin: 0 auto 20px auto;
 }
 

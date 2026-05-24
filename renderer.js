@@ -6,6 +6,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     // Captura os dados
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
+    const phone = document.getElementById('receiverPhone').value;
     
     // Pega todas as opções selecionadas e as formata como tópicos (bullets)
     const carnesSelects = document.querySelectorAll('.carne-select');
@@ -18,7 +19,22 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const acompValues = Array.from(acompSelects)
         .map(select => select.value)
         .filter(val => val !== "");
-    const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : '';
+    const acompanhamentos = acompValues.length > 0 ? '<br>' + acompValues.map(val => `&bull; ${val}`).join('<br>') : ''
+    
+    //Captura forma de pagamento
+    const pagamento = document.getElementById('pagamento-select').value;
+
+    //Captura tamanho da marmita
+    const tamanho = document.getElementById('tamanho-select').value;
+
+    // Captura quantidade de marmitas
+    const quantity = document.getElementById('quantity-input').value;
+
+    //Captura forma de entrega
+    const entrega = document.getElementById('delivery-select').value;
+
+    //Captura Talher ou não
+    const talher = document.getElementById('talher-select').value;
     
     // O valor precisa tratar vírgulas como decimais e extrair o número
     const rawPrice = document.getElementById('pricevalue').value.replace(',', '.');
@@ -35,15 +51,33 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     // Preenche as informações do recibo
     fillField('r-sender', sender);
     fillField('r-receiver', receiver);
+    fillField('r-phone', phone);
     fillField('r-carnes', carnes);
     fillField('r-acompanhamentos', acompanhamentos);
     fillField('r-amount', amount.toFixed(2).replace('.', ','));
     fillField('r-date', date);
     fillField('r-id', transactionId);
+    fillField('r-pagamento', pagamento);
+    fillField('r-tamanho', tamanho);
+    fillField('r-quantity', quantity);
+    fillField('r-entrega', entrega);
+    fillField('r-talher', talher);
+
+
+
 
     // Esconde o formulário e mostra a pré-visualização
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('receipt-area').classList.remove('hidden');
+});
+
+// Lógica para máscara de telefone (00) 00000-0000
+document.getElementById('receiverPhone').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2"); // Coloca parênteses no DDD
+    value = value.replace(/(\d)(\d{4})$/, "$1-$2");    // Coloca hífen antes dos últimos 4 dígitos
+    
+    e.target.value = value.substring(0, 15); // Limita o tamanho máximo
 });
 
 // Botão Imprimir (Na pré-visualização)
