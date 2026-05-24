@@ -98,7 +98,7 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
                 </div>
                 <div class="receipt-body">
                     <p><strong>Cliente:</strong> ${order.sender}</p>
-                    <p><strong>Telefeone:</strong> ${order.phone}</p>
+                    <p><strong>Telefone:</strong> ${order.phone}</p>
                     <p><strong>Endereço:</strong> ${order.receiver}</p>
                     <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
                     <p><strong>Carnes:</strong> ${order.carnes}</p>

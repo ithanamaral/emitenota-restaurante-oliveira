@@ -115,6 +115,7 @@ button:hover {
     height: 297mm; /* Altura A4 */
     margin: 0 auto;
     background-color: white;
+    box-sizing: border-box;
 }
 
 .receipt-container {
@@ -244,12 +245,19 @@ button:hover {
 /* Regras de Impressão */
 @media print {
     .no-print { display: none !important; }
-    .receipt-container { display: block !important; border: 2px solid #000; padding: 20px; box-shadow: none; }
-    body { background-color: white; }
-    .print-page {
-        page-break-after: always;
+    body { 
+        background-color: white; 
+        margin: 0; 
+        padding: 0; 
     }
-    .print-page:last-child {
-        page-break-after: auto;
+    .receipt-grid {
+        margin: 0;
+        width: 210mm;
+        height: 297mm;
+        gap: 0; /* Removemos o gap na impressão para garantir o encaixe perfeito */
+    }
+    .receipt-container {
+        border: 1px solid #000; /* Borda sólida preta para melhor visibilidade no papel */
+        page-break-inside: avoid;
     }
 }
