@@ -7,20 +7,27 @@ body {
 
 .header, .header-print{
     display: flex;
+    flex-wrap: wrap; /* Permite que a logo e o título se organizem em linhas diferentes se não houver espaço */
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* Centraliza para evitar expansão lateral desnecessária */
     margin-bottom: 20px;
     gap: 15px;
+    position: relative;
+    z-index: 1;
 }
 
 .header img, .header-print img{
     width: 160px;
+    pointer-events: none; /* Impede que a imagem bloqueie cliques no formulário */
 }
 
 .header h1, .header-print h1{
     margin: 0;
-    width: 100%;
+    flex: 1; /* Permite que o título se ajuste ao espaço disponível */
+    min-width: 280px; /* Garante que o texto não fique espremido demais antes de quebrar linha */
+    font-size: 24px; /* Define um tamanho de fonte mais adequado para evitar o vazamento */
     text-align: center;
+    pointer-events: none; /* Impede que o título "vaze" e bloqueie os inputs abaixo */
 }
 
 .container {
@@ -28,12 +35,18 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 750px; /* Aumenta a largura total do formulário na tela */
+    max-width: 1200px; /* Aumenta a largura total do formulário na tela */
     margin: 0 auto 20px auto;
+}
+
+.receipt-margin{
+    margin-top: 15px;
 }
 
 .form-group {
     margin-bottom: 15px;
+    position: relative; /* Garante que os campos fiquem na camada correta */
+    z-index: 10; /* Coloca o formulário acima do cabeçalho */
 }
 
 label {
@@ -48,6 +61,34 @@ input, select, textarea {
     box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
+    color: #333; /* Garante que o texto digitado seja escuro e visível */
+    background-color: #fff;
+}
+
+.dynamic-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.dynamic-row select {
+    flex: 1; /* Faz o select ocupar o máximo de espaço */
+}
+
+.btn-remove {
+    background-color: #dc3545; /* Vermelho */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    width: auto;
+}
+
+.btn-remove:hover {
+    background-color: #c82333;
 }
 
 textarea {
@@ -72,22 +113,64 @@ button:hover {
 }
 
 /* Estilos do Comprovante */
-.receipt-container {
+#receipt-area {
+    background-color: #525659; /* Cor de fundo estilo visualizador de PDF */
+    padding: 40px 0;
+    min-height: 100vh;
+}
+
+.receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas */
+    grid-template-rows: repeat(2, 1fr);    /* 2 linhas */
+    gap: 2mm;
+    width: 210mm; /* Largura A4 */
+    height: 297mm; /* Altura A4 */
+    margin: 0 auto 40px auto;
     background-color: white;
-    padding: 40px;
-    border: 1px solid #ddd;
-    max-width: 750px; /* Aumenta a largura do comprovante para acompanhar o formulário */
-    margin: 0 auto 20px auto;
+    box-sizing: border-box;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5); /* Sombra para destacar a folha */
+    zoom: 1.1; /* Aumenta a escala visual na tela para facilitar o teste */
+}
+
+.receipt-container {
+    border: 1px dashed #ccc;
+    padding: 10px;
+    font-size: 11px; /* Fonte menor para caber */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.receipt-container h1 { font-size: 14px; margin: 5px 0; }
+.receipt-container h2 { font-size: 12px; margin: 2px 0; }
+.receipt-container p { margin: 2px 0; line-height: 1.2; }
+.receipt-container img { width: 60px !important; }
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+.header-print {
+    flex-direction: column;
+    gap: 5px;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .receipt-header {
     text-align: center;
-    border-bottom: 2px solid #333;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
 }
 
 .total {
@@ -118,8 +201,51 @@ button:hover {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin: 0 auto 20px auto;
+    max-width: 1000px;
+    margin: 0 auto 40px auto;
+    position: sticky; /* Mantém os botões visíveis ao rolar */
+    top: 10px;
+    z-index: 100;
+}
+
+/* Estilos do Modal Personalizado */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Acima de tudo */
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-confirm {
+    background-color: #28a745;
+    flex: 1;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    flex: 1;
 }
 
 .btn-print {
@@ -137,12 +263,37 @@ button:hover {
 /* Regras de Impressão */
 @media print {
     .no-print { display: none !important; }
-    .receipt-container { display: block !important; border: 2px solid #000; padding: 20px; box-shadow: none; }
-    body { background-color: white; }
-    .print-page {
-        page-break-after: always;
+    
+    #receipt-area { 
+        background: none !important; 
+        padding: 0 !important; 
     }
-    .print-page:last-child {
-        page-break-after: auto;
+
+    body { 
+        background-color: white; 
+        margin: 0; 
+        padding: 0; 
     }
+
+    .receipt-grid {
+        margin: 0;
+        width: 210mm;
+        height: 297mm;
+        gap: 0; /* Removemos o gap na impressão para garantir o encaixe perfeito */
+        box-shadow: none !important;
+        zoom: 1 !important; /* RESETA O ZOOM: O segredo para não quebrar a folha */
+    }
+
+    .receipt-container {
+        border: 1px solid #000; /* Borda sólida preta para melhor visibilidade no papel */
+        padding: 5px; /* Reduz o preenchimento interno na impressão */
+        page-break-inside: avoid;
+    }
+
+    .receipt-margin {
+        margin-top: 20px !important; /* Reduz drasticamente o espaçamento entre itens no papel */
+    }
+
+    .receipt-container h1 { font-size: 12px; margin: 2px 0; }
+    .receipt-container p { font-size: 10px; }
 }
