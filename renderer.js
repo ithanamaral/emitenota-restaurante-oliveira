@@ -87,43 +87,63 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
     grid.innerHTML = ''; // Limpa a grade antes de renderizar
 
     ordersQueue.forEach(order => {
-        const formatBullets = (arr) => arr.length > 0 ? '<br>' + arr.map(val => `&bull; ${val}`).join('<br>') : '';
-
         grid.innerHTML += `
             <div class="receipt-container">
                 <div class="receipt-actions no-print">
                     <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
                 </div>
                 <div class="receipt-header">
-                    <img src="public/logo Restaurante oliveira.png" style="width: 50px;">
-                    <h1>OLIVEIRA REAL</h1>
-                    <p style="font-size: 9px">ID: ${order.id} | ${order.date}</p>
+                    <img src="public/logo Restaurante oliveira.png" style="width: 40px !important;">
+                    <div class="header-titles">
+                        <h1>RESTAURANTE OLIVEIRA REAL</h1>
+                        <p class="receipt-id">#${order.id} • ${order.date.split(',')[0]}</p>
+                    </div>
                 </div>
                 <div class="receipt-body">
-                    <div class="receipt-margin">
-                    <p><strong>Cliente:</strong> ${order.sender}</p>
+                        <div class="info-row">
+                            <span class="info-label">CLIENTE:</span>
+                            <span class="info-value highlight">${order.sender}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">ENDEREÇO:</span>
+                            <span class="info-value">${order.receiver}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">TELEFONE:</span>
+                            <span class="info-value">${order.phone}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">TAMANHO / QTD:</span>
+                            <span class="info-value">${order.tamanho} (${order.quantity}x)</span>
+                        </div>
+                    ${order.carnes.length > 0 ? `
+                    <div class="info-section">
+                            <div class="info-row">
+                                <span class="info-label">CARNES:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.carnes.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.acompanhamentos.length > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">ACOMPANHAMENTOS:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.acompanhamentos.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.bebidas.length > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">BEBIDAS:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.bebidas.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.observacoes ? `<div style="background:#f7f7f7; padding:4px; font-size:9px; border-radius:4px; margin-top:5px;"><strong>Obs:</strong> ${order.observacoes}</div>` : ''}
+                        </div>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Telefone:</strong> ${order.phone}</p>
+                <div class="total-section">
+                    <div class="total-row">
+                        <span style="font-weight:700; color:#718096;">TOTAL</span>
+                        <span class="total-value">R$ ${order.amount}</span>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Endereço:</strong> ${order.receiver}</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Carnes:</strong> ${formatBullets(order.carnes)}</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Acompanhamentos:</strong> ${formatBullets(order.acompanhamentos)}</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Bebidas:</strong> ${formatBullets(order.bebidas)}</p>
-                    </div>
-                    <p><strong>Observações:</strong> ${order.observacoes}</p>
-                    <hr>
-                    <p><strong>R$ ${order.amount}</strong> (${order.pagamento})</p>
+                    <div class="payment-badge">${order.pagamento} • ${order.entrega}</div>
                 </div>
             </div>`;
     });
@@ -264,6 +284,14 @@ function handleDynamicSelects(containerId, selectClass) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
+    // NOVO: Garante que qualquer campo deste grupo, ao ser clicado, 
+    // se centralize na tela de forma suave.
+    container.addEventListener('focusin', (e) => {
+        if (e.target.classList.contains(selectClass)) {
+            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
     container.addEventListener('change', async (e) => {
         const select = e.target;
         if (select.classList.contains(selectClass)) {
@@ -278,11 +306,14 @@ function handleDynamicSelects(containerId, selectClass) {
             });
 
             if (duplicateCount > 1) {
+                select.style.borderColor = "var(--accent-color)"; // Destaca o campo com erro
                 const keep = await showCustomConfirm(`O item "${newValue}" já foi selecionado. Deseja manter a duplicata?`);
                 if (!keep) {
                     select.value = "";
+                    select.style.borderColor = "";
                     return;
                 }
+                select.style.borderColor = "";
             }
 
             const rows = container.querySelectorAll('.dynamic-row');
@@ -351,6 +382,9 @@ function fillFormWithRandomData() {
     pickRandomOption('carnes-container', 'carne-select');
     setTimeout(() => pickRandomOption('carnes-container', 'carne-select'), 200); // Espera a nova linha ser criada
     pickRandomOption('acompanhamentos-container', 'acomp-select');
+    
+    // Adiciona uma bebida aleatória
+    pickRandomOption('bebidas-container', 'bebida-select');
     
     document.getElementById('observation-input').value = "Caprichar no feijão! Teste automático.";
 }

@@ -1,120 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #386632; /* Verde Oliva mais suave */
+    --primary-hover: #2d5a27;
+    --accent-color: #f39c12;  /* Dourado/Laranja */
+    --bg-light: #f8f9fa;
+    --text-dark: #2d3436;
+    --border-radius: 10px;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light);
     margin: 0;
     padding: 20px;
+    color: var(--text-dark);
 }
 
 .header, .header-print{
     display: flex;
-    flex-wrap: wrap; /* Permite que a logo e o título se organizem em linhas diferentes se não houver espaço */
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center; /* Centraliza para evitar expansão lateral desnecessária */
-    margin-bottom: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
     gap: 15px;
     position: relative;
     z-index: 1;
+    border-bottom: 2px solid #996e0e;
+    padding-bottom: 15px;
 }
 
 .header img, .header-print img{
-    width: 160px;
-    pointer-events: none; /* Impede que a imagem bloqueie cliques no formulário */
+    width: 120px;
+    pointer-events: none;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
 }
 
 .header h1, .header-print h1{
     margin: 0;
-    flex: 1; /* Permite que o título se ajuste ao espaço disponível */
-    min-width: 280px; /* Garante que o texto não fique espremido demais antes de quebrar linha */
-    font-size: 24px; /* Define um tamanho de fonte mais adequado para evitar o vazamento */
+    flex: 1;
+    min-width: 280px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #996e0e;
     text-align: center;
-    pointer-events: none; /* Impede que o título "vaze" e bloqueie os inputs abaixo */
+    pointer-events: none;
 }
 
 .container {
     background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 1200px; /* Aumenta a largura total do formulário na tela */
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    max-width: 1200px;
     margin: 0 auto 20px auto;
+    padding-bottom: 350px; /* Reduzi um pouco para não ficar um scroll infinito */
+}
+
+.info-row{
+    margin-bottom: 7px ;
+}
+
+.info-section{
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.form-section {
+    border: 1px solid #edf2f7;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 25px;
+    background-color: #fff;
+}
+
+.form-section-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0aec0;
+    margin-bottom: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .receipt-margin{
-    margin-top: 15px;
+    margin-top: 8px;
+    border-left: 3px solid var(--accent-color);
+    padding-left: 8px;
 }
 
 .form-group {
     margin-bottom: 15px;
-    position: relative; /* Garante que os campos fiquem na camada correta */
-    z-index: 10; /* Coloca o formulário acima do cabeçalho */
+    position: relative;
+    z-index: 10;
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #4a5568;
 }
 
 input, select, textarea {
     width: 100%;
-    padding: 8px;
+    padding: 12px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    color: #333; /* Garante que o texto digitado seja escuro e visível */
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius);
+    color: var(--text-dark);
     background-color: #fff;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+select {
+    appearance: none; /* Remove o estilo padrão do navegador/Windows */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232d5a27'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px !important;
+    cursor: pointer;
+}
+
+select:hover {
+    border-color: #996e0e;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #996e0e;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
 }
 
 .dynamic-row {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .dynamic-row select {
-    flex: 1; /* Faz o select ocupar o máximo de espaço */
-}
-
-.btn-remove {
-    background-color: #dc3545; /* Vermelho */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-weight: bold;
+    flex: 1;
     width: auto;
 }
 
-.btn-remove:hover {
-    background-color: #c82333;
+/* Animação suave para novas linhas */
+.dynamic-row {
+    animation: fadeIn 0.3s ease-out;
 }
 
-textarea {
-    resize: vertical; /* Permite aumentar a altura, mas trava a largura para não quebrar o layout */
-    font-family: inherit; /* Garante que a fonte seja a mesma do resto do app */
-    min-height: 100px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-remove {
+    background-color: #fed7d7;
+    color: #c53030;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    width: auto !important; /* CORREÇÃO: Impede que o botão ocupe 100% */
+}
+
+.btn-remove:hover {
+    background-color: #feb2b2;
 }
 
 button {
-    background-color: #007bff;
+    background-color: #996e0e;
     color: white;
-    padding: 10px 20px;
+    padding: 14px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     cursor: pointer;
     width: 100%;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform 0.1s, background-color 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
 }
 
 /* Estilos do Comprovante */
 #receipt-area {
-    background-color: #525659; /* Cor de fundo estilo visualizador de PDF */
+    background-color: #374151; /* Cinza slate mais leve que o preto total */
     padding: 40px 0;
     min-height: 100vh;
 }
@@ -129,7 +220,7 @@ button:hover {
     margin: 0 auto 40px auto;
     background-color: white;
     box-sizing: border-box;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5); /* Sombra para destacar a folha */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     zoom: 1.1; /* Aumenta a escala visual na tela para facilitar o teste */
 }
 
@@ -196,15 +287,15 @@ button:hover {
     display: flex;
     gap: 15px;
     justify-content: center;
-    margin-bottom: 20px;
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 1000px;
+    background-color: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 900px;
     margin: 0 auto 40px auto;
-    position: sticky; /* Mantém os botões visíveis ao rolar */
-    top: 10px;
+    position: sticky;
+    top: 20px;
     z-index: 100;
 }
 
@@ -215,21 +306,18 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Acima de tudo */
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.3); /* Máscara mais neutra */
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-top: 5px solid var(--accent-color);
+    padding: 30px;
+    border-radius: 15px;
 }
 
 .modal-buttons {
@@ -239,23 +327,23 @@ button:hover {
 }
 
 .btn-confirm {
-    background-color: #28a745;
+    background-color: #996e0e;
     flex: 1;
 }
 
 .btn-cancel {
-    background-color: #dc3545;
+    background-color: #718096;
     flex: 1;
 }
 
 .btn-print {
-    background-color: #28a745; /* Verde */
+    background-color: #996e0e;
     flex: 1;
 }
-.btn-print:hover { background-color: #218838; }
+.btn-print:hover { background-color: var(--primary-hover); }
 
 .btn-back {
-    background-color: #6c757d; /* Cinza */
+    background-color: #4a5568;
     flex: 1;
 }
 .btn-back:hover { background-color: #5a6268; }
@@ -273,6 +361,14 @@ button:hover {
         background-color: white; 
         margin: 0; 
         padding: 0; 
+    }
+
+    .info-row{
+        margin-left: 10px;
+    }
+
+    .indent-list{
+        margin-left: 5px;
     }
 
     .receipt-grid {
