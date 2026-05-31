@@ -45,7 +45,16 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const observacoes = document.getElementById('observation-input').value;
     
     // Pega o valor formatado do input
-    const amountStr = document.getElementById('pricevalue').value;
+    const baseAmountStr = document.getElementById('pricevalue').value;
+    const freteStr = document.getElementById('fretevalue').value;
+
+    let amountStr = baseAmountStr;
+    const isEntrega = (entrega === 'Entrega');
+    if (isEntrega && freteStr) {
+        const baseAmount = parseBRL(baseAmountStr);
+        const frete = parseBRL(freteStr);
+        amountStr = formatBRL(baseAmount + frete);
+    }
 
     if (ordersQueue.length >= 6) {
         alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
@@ -59,6 +68,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         acompanhamentos: acompValues, 
         bebidas: bebidaValues,
         pagamento, tamanho, quantity, entrega, talher, observacoes,
+        baseAmount: baseAmountStr,
+        frete: isEntrega ? freteStr : "",
         amount: amountStr,
         date: new Date().toLocaleString('pt-BR'),
         id: Math.floor(Math.random() * 1000000)
@@ -69,6 +80,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     
     // Limpa o formulário e remove os selects extras
     e.target.reset();
+    toggleFreteVisibility();
     document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
 });
 
@@ -87,43 +99,73 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
     grid.innerHTML = ''; // Limpa a grade antes de renderizar
 
     ordersQueue.forEach(order => {
-        const formatBullets = (arr) => arr.length > 0 ? '<br>' + arr.map(val => `&bull; ${val}`).join('<br>') : '';
-
         grid.innerHTML += `
             <div class="receipt-container">
                 <div class="receipt-actions no-print">
                     <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
                 </div>
                 <div class="receipt-header">
-                    <img src="public/logo Restaurante oliveira.png" style="width: 50px;">
-                    <h1>OLIVEIRA REAL</h1>
-                    <p style="font-size: 9px">ID: ${order.id} | ${order.date}</p>
+                    <img src="public/logo Restaurante oliveira.png" style="width: 40px !important;">
+                    <div class="header-titles">
+                        <h1>RESTAURANTE OLIVEIRA REAL</h1>
+                        <p class="receipt-id">#${order.id} • ${order.date.split(',')[0]}</p>
+                    </div>
                 </div>
                 <div class="receipt-body">
-                    <div class="receipt-margin">
-                    <p><strong>Cliente:</strong> ${order.sender}</p>
+                        <div class="info-row">
+                            <span class="info-label">CLIENTE:</span>
+                            <span class="info-value highlight">${order.sender}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">ENDEREÇO:</span>
+                            <span class="info-value">${order.receiver}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">TELEFONE:</span>
+                            <span class="info-value">${order.phone}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">TAMANHO / QTD:</span>
+                            <span class="info-value">${order.tamanho} (${order.quantity}x)</span>
+                        </div>
+                    ${order.carnes.length > 0 ? `
+                    <div class="info-section">
+                            <div class="info-row">
+                                <span class="info-label">CARNES:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.carnes.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.acompanhamentos.length > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">ACOMPANHAMENTOS:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.acompanhamentos.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.bebidas.length > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">BEBIDAS:</span>
+                                <br>
+                                <span class="info-value indent-list">${order.bebidas.map(i => `• ${i}`).join('<br>')}</span>
+                            </div>` : ''}
+                            ${order.observacoes ? `<div style="background:#f7f7f7; padding:4px; font-size:9px; border-radius:4px; margin-top:5px;"><strong>Obs:</strong> ${order.observacoes}</div>` : ''}
+                        </div>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Telefone:</strong> ${order.phone}</p>
+                <div class="total-section">
+                    ${order.frete ? `
+                    <div style="display:flex; justify-content:space-between; font-size:9px; color:#718096; margin-bottom:1px;">
+                        <span>SUBTOTAL</span>
+                        <span>R$ ${order.baseAmount || order.amount}</span>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Endereço:</strong> ${order.receiver}</p>
+                    <div style="display:flex; justify-content:space-between; font-size:9px; color:#718096; margin-bottom:2px; border-bottom:1px dashed #e2e8f0; padding-bottom:2px;">
+                        <span>FRETE</span>
+                        <span>R$ ${order.frete}</span>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Pedido:</strong> ${order.tamanho} (${order.quantity}x)</p>
+                    ` : ''}
+                    <div class="total-row">
+                        <span style="font-weight:700; color:#718096;">TOTAL</span>
+                        <span class="total-value">R$ ${order.amount}</span>
                     </div>
-                    <div class="receipt-margin">
-                    <p><strong>Carnes:</strong> ${formatBullets(order.carnes)}</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Acompanhamentos:</strong> ${formatBullets(order.acompanhamentos)}</p>
-                    </div>
-                    <div class="receipt-margin">
-                    <p><strong>Bebidas:</strong> ${formatBullets(order.bebidas)}</p>
-                    </div>
-                    <p><strong>Observações:</strong> ${order.observacoes}</p>
-                    <hr>
-                    <p><strong>R$ ${order.amount}</strong> (${order.pagamento})</p>
+                    <div class="payment-badge">${order.pagamento} • ${order.entrega}</div>
                 </div>
             </div>`;
     });
@@ -140,6 +182,44 @@ document.getElementById('btnClearQueue').addEventListener('click', () => {
     }
 });
 
+// Funções auxiliares para manipulação de moeda BRL (ex: "20,00" <-> 20.0)
+function parseBRL(valueStr) {
+    if (!valueStr) return 0;
+    const cleanStr = valueStr.replace(/\./g, "").replace(",", ".");
+    const val = parseFloat(cleanStr);
+    return isNaN(val) ? 0 : val;
+}
+
+function formatBRL(value) {
+    return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(value);
+}
+
+// Lógica de visibilidade do campo de frete dependendo da forma de entrega
+const deliverySelect = document.getElementById('delivery-select');
+const freteGroup = document.getElementById('frete-group');
+const freteInput = document.getElementById('fretevalue');
+
+function toggleFreteVisibility() {
+    if (deliverySelect.value === 'Entrega') {
+        freteGroup.style.display = 'block';
+    } else {
+        freteGroup.style.display = 'none';
+        freteInput.value = ''; // Limpa o frete caso mude para Retirada
+    }
+}
+
+// Inicializa a visibilidade e adiciona listener
+deliverySelect.addEventListener('change', toggleFreteVisibility);
+toggleFreteVisibility();
+
+// Máscara para o campo de valor do frete (Moeda R$) em tempo real
+freteInput.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    if (value === "") return;
+    const result = formatBRL(parseFloat(value) / 100);
+    e.target.value = result;
+});
+
 // Máscara para o campo de valor (Moeda R$) em tempo real
 document.getElementById('pricevalue').addEventListener('input', (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
@@ -149,7 +229,7 @@ document.getElementById('pricevalue').addEventListener('input', (e) => {
     }
     
     // Formata o número para o padrão brasileiro (ex: 1.250,50)
-    const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+    const result = formatBRL(parseFloat(value) / 100);
     e.target.value = result;
 });
 
@@ -197,11 +277,15 @@ window.editOrder = (orderId) => {
     document.getElementById('receiverPhone').value = order.phone;
     document.getElementById('tamanho-select').value = order.tamanho;
     document.getElementById('quantity-input').value = order.quantity;
-    document.getElementById('pricevalue').value = order.amount;
+    document.getElementById('pricevalue').value = order.baseAmount || order.amount;
+    document.getElementById('fretevalue').value = order.frete || "";
     document.getElementById('pagamento-select').value = order.pagamento;
     document.getElementById('delivery-select').value = order.entrega;
     document.getElementById('talher-select').value = order.talher;
     document.getElementById('observation-input').value = order.observacoes;
+
+    // Atualiza a visibilidade do frete baseado no que foi restaurado
+    toggleFreteVisibility();
 
     // Reconstrói as linhas dinâmicas (Carnes, Acomp, Bebidas)
     const rebuildDynamic = (containerId, selectClass, values) => {
@@ -267,6 +351,14 @@ function handleDynamicSelects(containerId, selectClass) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
+    // NOVO: Garante que qualquer campo deste grupo, ao ser clicado, 
+    // se centralize na tela de forma suave.
+    container.addEventListener('focusin', (e) => {
+        if (e.target.classList.contains(selectClass)) {
+            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
     container.addEventListener('change', async (e) => {
         const select = e.target;
         if (select.classList.contains(selectClass)) {
@@ -281,11 +373,14 @@ function handleDynamicSelects(containerId, selectClass) {
             });
 
             if (duplicateCount > 1) {
+                select.style.borderColor = "var(--accent-color)"; // Destaca o campo com erro
                 const keep = await showCustomConfirm(`O item "${newValue}" já foi selecionado. Deseja manter a duplicata?`);
                 if (!keep) {
                     select.value = "";
+                    select.style.borderColor = "";
                     return;
                 }
+                select.style.borderColor = "";
             }
 
             const rows = container.querySelectorAll('.dynamic-row');
@@ -332,6 +427,28 @@ function fillFormWithRandomData() {
     phoneInput.value = "319" + Math.floor(10000000 + Math.random() * 90000000);
     phoneInput.dispatchEvent(new Event('input'));
 
+    // Sorteia forma de entrega: Entrega ou Retirada
+    const deliverySelect = document.getElementById('delivery-select');
+    deliverySelect.value = Math.random() > 0.4 ? "Entrega" : "Retirada";
+    toggleFreteVisibility();
+
+    // Se for entrega, gera valor de frete aleatório
+    if (deliverySelect.value === "Entrega") {
+        const freteInput = document.getElementById('fretevalue');
+        freteInput.value = Math.floor(400 + Math.random() * 800); // R$ 4,00 a R$ 11,99
+        freteInput.dispatchEvent(new Event('input'));
+    }
+
+    // Sorteia forma de pagamento
+    const pagamentoSelect = document.getElementById('pagamento-select');
+    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro"];
+    pagamentoSelect.value = pagamentos[Math.floor(Math.random() * pagamentos.length)];
+
+    // Sorteia tamanho da marmita
+    const tamanhoSelect = document.getElementById('tamanho-select');
+    const tamanhos = ["Pequena", "Média", "Grande"];
+    tamanhoSelect.value = tamanhos[Math.floor(Math.random() * tamanhos.length)];
+
     // Simula digitação para a máscara de valor funcionar
     const priceInput = document.getElementById('pricevalue');
     priceInput.value = Math.floor(2500 + Math.random() * 5000);
@@ -354,6 +471,9 @@ function fillFormWithRandomData() {
     pickRandomOption('carnes-container', 'carne-select');
     setTimeout(() => pickRandomOption('carnes-container', 'carne-select'), 200); // Espera a nova linha ser criada
     pickRandomOption('acompanhamentos-container', 'acomp-select');
+    
+    // Adiciona uma bebida aleatória
+    pickRandomOption('bebidas-container', 'bebida-select');
     
     document.getElementById('observation-input').value = "Caprichar no feijão! Teste automático.";
 }
