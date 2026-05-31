@@ -45,7 +45,16 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     const observacoes = document.getElementById('observation-input').value;
     
     // Pega o valor formatado do input
-    const amountStr = document.getElementById('pricevalue').value;
+    const baseAmountStr = document.getElementById('pricevalue').value;
+    const freteStr = document.getElementById('fretevalue').value;
+
+    let amountStr = baseAmountStr;
+    const isEntrega = (entrega === 'Entrega');
+    if (isEntrega && freteStr) {
+        const baseAmount = parseBRL(baseAmountStr);
+        const frete = parseBRL(freteStr);
+        amountStr = formatBRL(baseAmount + frete);
+    }
 
     if (ordersQueue.length >= 6) {
         alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
@@ -59,6 +68,8 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         acompanhamentos: acompValues, 
         bebidas: bebidaValues,
         pagamento, tamanho, quantity, entrega, talher, observacoes,
+        baseAmount: baseAmountStr,
+        frete: isEntrega ? freteStr : "",
         amount: amountStr,
         date: new Date().toLocaleString('pt-BR'),
         id: Math.floor(Math.random() * 1000000)
@@ -69,6 +80,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     
     // Limpa o formulário e remove os selects extras
     e.target.reset();
+    toggleFreteVisibility();
     document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
 });
 
@@ -139,6 +151,16 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
                         </div>
                     </div>
                 <div class="total-section">
+                    ${order.frete ? `
+                    <div style="display:flex; justify-content:space-between; font-size:9px; color:#718096; margin-bottom:1px;">
+                        <span>SUBTOTAL</span>
+                        <span>R$ ${order.baseAmount || order.amount}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:9px; color:#718096; margin-bottom:2px; border-bottom:1px dashed #e2e8f0; padding-bottom:2px;">
+                        <span>FRETE</span>
+                        <span>R$ ${order.frete}</span>
+                    </div>
+                    ` : ''}
                     <div class="total-row">
                         <span style="font-weight:700; color:#718096;">TOTAL</span>
                         <span class="total-value">R$ ${order.amount}</span>
@@ -160,13 +182,51 @@ document.getElementById('btnClearQueue').addEventListener('click', () => {
     }
 });
 
+// Funções auxiliares para manipulação de moeda BRL (ex: "20,00" <-> 20.0)
+function parseBRL(valueStr) {
+    if (!valueStr) return 0;
+    const cleanStr = valueStr.replace(/\./g, "").replace(",", ".");
+    const val = parseFloat(cleanStr);
+    return isNaN(val) ? 0 : val;
+}
+
+function formatBRL(value) {
+    return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(value);
+}
+
+// Lógica de visibilidade do campo de frete dependendo da forma de entrega
+const deliverySelect = document.getElementById('delivery-select');
+const freteGroup = document.getElementById('frete-group');
+const freteInput = document.getElementById('fretevalue');
+
+function toggleFreteVisibility() {
+    if (deliverySelect.value === 'Entrega') {
+        freteGroup.style.display = 'block';
+    } else {
+        freteGroup.style.display = 'none';
+        freteInput.value = ''; // Limpa o frete caso mude para Retirada
+    }
+}
+
+// Inicializa a visibilidade e adiciona listener
+deliverySelect.addEventListener('change', toggleFreteVisibility);
+toggleFreteVisibility();
+
+// Máscara para o campo de valor do frete (Moeda R$) em tempo real
+freteInput.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    if (value === "") return;
+    const result = formatBRL(parseFloat(value) / 100);
+    e.target.value = result;
+});
+
 // Máscara para o campo de valor (Moeda R$) em tempo real
 document.getElementById('pricevalue').addEventListener('input', (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
     if (value === "") return;
     
     // Formata o número para o padrão brasileiro (ex: 1.250,50)
-    const result = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(value) / 100);
+    const result = formatBRL(parseFloat(value) / 100);
     e.target.value = result;
 });
 
@@ -214,11 +274,15 @@ window.editOrder = (orderId) => {
     document.getElementById('receiverPhone').value = order.phone;
     document.getElementById('tamanho-select').value = order.tamanho;
     document.getElementById('quantity-input').value = order.quantity;
-    document.getElementById('pricevalue').value = order.amount;
+    document.getElementById('pricevalue').value = order.baseAmount || order.amount;
+    document.getElementById('fretevalue').value = order.frete || "";
     document.getElementById('pagamento-select').value = order.pagamento;
     document.getElementById('delivery-select').value = order.entrega;
     document.getElementById('talher-select').value = order.talher;
     document.getElementById('observation-input').value = order.observacoes;
+
+    // Atualiza a visibilidade do frete baseado no que foi restaurado
+    toggleFreteVisibility();
 
     // Reconstrói as linhas dinâmicas (Carnes, Acomp, Bebidas)
     const rebuildDynamic = (containerId, selectClass, values) => {
@@ -359,6 +423,28 @@ function fillFormWithRandomData() {
     const phoneInput = document.getElementById('receiverPhone');
     phoneInput.value = "319" + Math.floor(10000000 + Math.random() * 90000000);
     phoneInput.dispatchEvent(new Event('input'));
+
+    // Sorteia forma de entrega: Entrega ou Retirada
+    const deliverySelect = document.getElementById('delivery-select');
+    deliverySelect.value = Math.random() > 0.4 ? "Entrega" : "Retirada";
+    toggleFreteVisibility();
+
+    // Se for entrega, gera valor de frete aleatório
+    if (deliverySelect.value === "Entrega") {
+        const freteInput = document.getElementById('fretevalue');
+        freteInput.value = Math.floor(400 + Math.random() * 800); // R$ 4,00 a R$ 11,99
+        freteInput.dispatchEvent(new Event('input'));
+    }
+
+    // Sorteia forma de pagamento
+    const pagamentoSelect = document.getElementById('pagamento-select');
+    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro"];
+    pagamentoSelect.value = pagamentos[Math.floor(Math.random() * pagamentos.length)];
+
+    // Sorteia tamanho da marmita
+    const tamanhoSelect = document.getElementById('tamanho-select');
+    const tamanhos = ["Pequena", "Média", "Grande"];
+    tamanhoSelect.value = tamanhos[Math.floor(Math.random() * tamanhos.length)];
 
     // Simula digitação para a máscara de valor funcionar
     const priceInput = document.getElementById('pricevalue');

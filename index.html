@@ -209,6 +209,11 @@
                     </select>
                 </div>
             </div>                                    
+            <!-- Valor do Frete (exibido apenas se for Entrega) -->
+            <div class="form-group" id="frete-group">
+                <label>Valor do Frete:</label>
+                <input type="text" id="fretevalue" inputmode="numeric" placeholder="0,00">
+            </div>
             <div style="display: flex; gap: 10px;">
                 <button type="submit" id="btnAddToList" style="flex: 2;">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
                 <button type="button" id="btnQuickFill" class="btn-secondary" style="flex: 1; background-color: #6f42c1;">🪄 Preencher</button>
