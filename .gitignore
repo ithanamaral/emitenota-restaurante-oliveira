@@ -3,3 +3,4 @@ dist/
 *.exe
 *.msi
 *.zip
+db.json

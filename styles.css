@@ -384,6 +384,68 @@ button:active {
     background-color: #c53030 !important;
 }
 
+/* Estilos do Gerenciador de Banco de Dados */
+.tab-btn {
+    width: auto !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    background-color: #718096 !important;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.tab-btn.active-tab {
+    background-color: var(--primary-color) !important;
+}
+
+.tab-btn:hover {
+    background-color: #4a5568 !important;
+}
+
+.tab-btn.active-tab:hover {
+    background-color: var(--primary-hover) !important;
+}
+
+#db-modal table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#db-modal th, #db-modal td {
+    padding: 12px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+#db-modal tr:hover {
+    background-color: #f7fafc;
+}
+
+#db-modal input, #db-modal select {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    height: auto !important;
+    margin-bottom: 0 !important;
+}
+
+#db-modal button {
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+    width: auto !important;
+}
+
+#db-modal .btn-remove {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+}
+
 /* Regras de Impressão */
 @media print {
     .no-print { display: none !important; }

@@ -15,12 +15,14 @@
         <div class="header">
             <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
             <h1>Sistema de Notas Restaurante Oliveira Real</h1>
+            <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; background-color: var(--primary-color); font-size: 13px; margin-top: 10px;">⚙️ Configurações / Banco de Dados</button>
         </div>
         <form id="remessaForm">
             <!-- NOME -->
             <div class="form-group">
                 <label>Nome do Cliente:</label>
-                <input type="text" id="senderName" required>
+                <input type="text" id="senderName" list="clientes-list" required autocomplete="off">
+                <datalist id="clientes-list"></datalist>
             </div>
             <!-- ENDEREÇO -->
             <div class="form-group">
@@ -55,33 +57,6 @@
                     <div class="dynamic-row">
                         <select class="carne-select" name="carnes">
                             <option value="" disabled selected>Selecione uma carne...</option>
-                            <option value="nenhuma das opções">Sem carnes</option>
-                            <option value="⁠bife bovino acebolado">⁠Bife bovino acebolado</option>
-                            <option value="⁠bife de pernil acebolado">⁠Bife de pernil acebolado</option>
-                            <option value="⁠Burguer sabor picanha grelhado 90g">⁠Burguer sabor picanha grelhado 90g
-                            </option>
-                            <option value="⁠carne moída">⁠Carne Moída</option>
-                            <option value="⁠costela bovina cozida">⁠Costela bovina cozida</option>
-                            <option value="costelinha suína">Costelinha suína</option>
-                            <option value="coxinha da asa">Coxinha da Asa</option>
-                            <option value="espaguete à bolonhesa">Espaguete à bolonhesa</option>
-                            <option value="Feijoada Real">Feijoada Real</option>
-                            <option value="⁠Filé de frango à milanesa">⁠Filé de frango à milanesa</option>
-                            <option value="Filé de frango grelhado">Filé de frango grelhado</option>
-                            <option value="Filé de peixe">Filé de peixe</option>
-                            <option value="⁠fraldinha bovina assada">⁠Fraldinha bovina assada</option>
-                            <option value="⁠iscas de fígado bovino">Iscas de fígado bovino</option>
-                            <option value="linguiça suína assada">⁠Linguiça suína assada</option>
-                            <option value="⁠lombo suíno">⁠Lombo suíno</option>
-                            <option value="maçã de peito assada">Maçã de peito assada</option>
-                            <option value="Omelete napolitano  (2 ovos fritos + presunto e queijo)">Omelete napolitano
-                                (2 ovos fritos + presunto e queijo)</option>
-                            <option value="⁠Ovos fritos (gema dura)">⁠Ovos fritos (gema dura)</option>
-                            <option value="⁠Ovos fritos (gema mole)">⁠Ovos fritos (gema mole)</option>
-                            <option value="paleta bovina cozida">Paleta bovina cozida</option>
-                            <option value="⁠parmegiana">Parmegiana</option>
-                            <option value="⁠sobrecoxa de frango">⁠Sobrecoxa de frango</option>
-                            <option value="⁠strogonoff de frango">⁠Strogonoff de frango</option>
                         </select>
                     </div>
                 </div>
@@ -93,39 +68,6 @@
                     <div class="dynamic-row">
                         <select class="acomp-select" name="acompanhamentos">
                             <option value="" disabled selected>Selecione um acompanhamento...</option>
-                            <option value="nenhuma das opções">Sem acompanhamentos</option>
-                            <option value="Abóbora moranga">Abóbora moranga</option>
-                            <option value="Abobrinha italiana">Abobrinha italiana</option>
-                            <option value="Angu temperado">Angu temperado</option>
-                            <option value="Arroz">Arroz</option>
-                            <option value="Batata doce assada">Batata doce assada</option>
-                            <option value="Batata frita">Batata frita</option>
-                            <option value="Batata inglesa assada">Batata inglesa assada</option>
-                            <option value="Batata palha">Batata palha</option>
-                            <option value="Batata salteada">Batata salteada</option>
-                            <option value="Beterraba">Beterraba</option>
-                            <option value="Brócolis ao alho">Brócolis ao alho</option>
-                            <option value="Cenoura com vagem">Cenoura com vagem</option>
-                            <option value="Chuchu ao alho">Chuchu ao alho</option>
-                            <option value="Couve">Couve</option>
-                            <option value="Farofa de cenoura">Farofa de cenoura</option>
-                            <option value="Farofa dourada">Farofa dourada</option>
-                            <option value="Feijão">Feijão</option>
-                            <option value="Feijoada francesa">Feijoada francesa</option>
-                            <option value="Fruta do dia">Fruta do dia</option>
-                            <option value="Jiló refogado">Jiló refogado</option>
-                            <option value="Macarrão alho e óleo">Macarrão alho e óleo</option>
-                            <option value="Mandioca frita">Mandioca frita</option>
-                            <option value="Mandioca salteada na manteiga">Mandioca salteada na manteiga</option>
-                            <option value="Maionese de batata">Maionese de batata</option>
-                            <option value="Mix de legumes salteados">Mix de legumes salteados</option>
-                            <option value="Purê de abóbora moranga">Purê de abóbora moranga</option>
-                            <option value="Purê de batata">Purê de batata</option>
-                            <option value="Quiabo">Quiabo</option>
-                            <option value="Saladas do dia">Saladas do dia</option>
-                            <option value="Salpicão">Salpicão</option>
-                            <option value="Tropeiro">Tropeiro</option>
-                            <option value="Tutu de feijão">Tutu de feijão</option>
                         </select>
                     </div>
                 </div>
@@ -137,36 +79,6 @@
                     <div class="dynamic-row">
                         <select class="bebida-select" name="bebidas">
                             <option value="" disabled selected>Selecione uma bebida...</option>
-                            <option value="Acerola (Suco Natural)">Acerola (Suco Natural)</option>
-                            <option value="Água Com Gás 500 ml">Água Com Gás 500 ml</option>
-                            <option value="Água Sem Gás 500 ml">Água Sem Gás 500 ml</option>
-                            <option value="Coca Cola (2lt)">Coca Cola (2lt)</option>
-                            <option value="Coca Cola Lata">Coca Cola Lata</option>
-                            <option value="Coca Cola Original (600 ml)">Coca Cola Original (600 ml)</option>
-                            <option value="Coca Cola Zero (600 ml)">Coca Cola Zero (600 ml)</option>
-                            <option value="Coca Cola Zero Lata">Coca Cola Zero Lata</option>
-                            <option value="Fanta Guaraná (2lt)">Fanta Guaraná (2lt)</option>
-                            <option value="Fanta Guaraná (Lata)">Fanta Guaraná (Lata)</option>
-                            <option value="Fanta Laranja (2lt)">Fanta Laranja (2lt)</option>
-                            <option value="Fanta Laranja (600 ml)">Fanta Laranja (600 ml)</option>
-                            <option value="Fanta Laranja (Lata)">Fanta Laranja (Lata)</option>
-                            <option value="Fanta Maracujá (Lata)">Fanta Maracujá (Lata)</option>
-                            <option value="Fanta Uva (Lata)">Fanta Uva (Lata)</option>
-                            <option value="Goiaba (Suco Lata)">Goiaba (Suco Lata)</option>
-                            <option value="Goiaba (Suco Natural)">Goiaba (Suco Natural)</option>
-                            <option value="Guarapan (2lt)">Guarapan (2lt)</option>
-                            <option value="Laranja (Suco Natural)">Laranja (Suco Natural)</option>
-                            <option value="Limão (Suco Natural)">Limão (Suco Natural)</option>
-                            <option value="Manga (Suco Lata)">Manga (Suco Lata)</option>
-                            <option value="Maracujá (Suco Lata)">Maracujá (Suco Lata)</option>
-                            <option value="Maracujá (Suco Natural)">Maracujá (Suco Natural)</option>
-                            <option value="Mate Couro Original (1lt)">Mate Couro Original (1lt)</option>
-                            <option value="Mate Couro Zero (1lt)">Mate Couro Zero (1lt)</option>
-                            <option value="Pêssego (Suco Lata)">Pêssego (Suco Lata)</option>
-                            <option value="Sprite (2lt)">Sprite (2lt)</option>
-                            <option value="Sprite (600 ml)">Sprite (600 ml)</option>
-                            <option value="Sprite (Lata)">Sprite (Lata)</option>
-                            <option value="Uva (Suco Lata)">Uva (Suco Lata)</option>
                         </select>
                     </div>
                 </div>
@@ -180,6 +92,12 @@
                         <option value="Não">Não</option>
                     </select>
                 </div>
+            </div>
+            <!-- SOBREMESA -->
+            <div class="form-group" id="sobremesa-group">
+                <label>Sobremesa:</label>
+                <textarea id="sobremesa-input" rows="2"
+                    placeholder="Ex: Pudim, Mousse de maracujá, Gelatina..."></textarea>
             </div>
             <!-- OBS -->
             <div class="form-group" id="observation-group">
@@ -252,6 +170,95 @@
             <div class="modal-buttons">
                 <button id="confirm-yes" class="btn-confirm">Sim, manter</button>
                 <button id="confirm-no" class="btn-cancel">Não, remover</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gerenciamento de Banco de Dados -->
+    <div id="db-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 800px; width: 90%; text-align: left; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; color: #996e0e; font-size: 20px;">⚙️ Configurações / Banco de Dados</h2>
+                <button type="button" id="btnCloseDBManager" style="width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 50% !important; padding: 0 !important; background-color: #e53e3e; color: white; border: none; font-weight: bold; cursor: pointer; display: flex !important; align-items: center; justify-content: center; font-size: 14px; transform: none !important;">X</button>
+            </div>
+            
+            <!-- Tabs para navegar entre Clientes e Itens -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                <button type="button" id="tabClientes" class="tab-btn active-tab" style="width: auto; padding: 8px 15px; font-size: 14px;">👥 Clientes</button>
+                <button type="button" id="tabItens" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px; background-color: #718096;">🍕 Cardápio (Itens)</button>
+            </div>
+
+            <!-- Conteúdo da Tab Clientes -->
+            <div id="contentClientes">
+                <form id="formAddClient" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 150px;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Nome:</label>
+                        <input type="text" id="dbClientName" placeholder="Nome do Cliente" required style="padding: 8px; font-size: 13px;">
+                    </div>
+                    <div style="flex: 2; min-width: 200px;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Endereço:</label>
+                        <input type="text" id="dbClientAddress" placeholder="Endereço Completo" required style="padding: 8px; font-size: 13px;">
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Telefone:</label>
+                        <input type="text" id="dbClientPhone" placeholder="Telefone" required style="padding: 8px; font-size: 13px;">
+                    </div>
+                    <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: var(--primary-color);">💾 Adicionar</button>
+                </form>
+                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                        <thead>
+                            <tr style="background-color: #f7fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 10px;">Nome</th>
+                                <th style="padding: 10px;">Endereço</th>
+                                <th style="padding: 10px;">Telefone</th>
+                                <th style="padding: 10px; width: 60px; text-align: center;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbClientsTableBody">
+                            <!-- Inserido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Conteúdo da Tab Itens -->
+            <div id="contentItens" class="hidden">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Selecione a Lista:</label>
+                        <select id="dbItemListSelector" style="padding: 8px; font-size: 13px;">
+                            <option value="carnes">🥩 Carnes</option>
+                            <option value="acompanhamentos">🍚 Acompanhamentos</option>
+                            <option value="bebidas">🥤 Bebidas</option>
+                        </select>
+                    </div>
+                    <form id="formAddItem" style="flex: 2; display: flex; gap: 10px; align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 12px; margin-bottom: 4px;">Novo Item:</label>
+                            <input type="text" id="dbItemName" placeholder="Nome do item..." required style="padding: 8px; font-size: 13px;">
+                        </div>
+                        <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: var(--primary-color);">💾 Adicionar</button>
+                    </form>
+                </div>
+                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                        <thead>
+                            <tr style="background-color: #f7fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 10px;">Nome do Item</th>
+                                <th style="padding: 10px; width: 60px; text-align: center;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbItemsTableBody">
+                            <!-- Inserido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Rodapé com botão grande de fechar -->
+            <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; display: flex; justify-content: flex-end;">
+                <button type="button" id="btnBottomCloseDB" class="btn-secondary" style="width: auto !important; padding: 10px 20px; background-color: #4a5568; font-size: 14px; height: auto !important; display: inline-flex !important; align-items: center; justify-content: center;">⬅️ Fechar e Voltar ao Sistema</button>
             </div>
         </div>
     </div>

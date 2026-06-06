@@ -1,4 +1,6 @@
 const { ipcRenderer } = require('electron');
+const db = require('./database.js');
+let appData = db.readDB();
 
 let ordersQueue = []; // Buffer para guardar até 6 pedidos
 let editingOrderId = null; // Guarda o ID do pedido que está sendo editado
@@ -44,6 +46,9 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
 
     //Captura as observações
     const observacoes = document.getElementById('observation-input').value;
+
+    //Captura a sobremesa
+    const sobremesa = document.getElementById('sobremesa-input').value;
     
     // Pega o valor formatado do input
     const baseAmountStr = document.getElementById('pricevalue').value;
@@ -68,7 +73,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         carnes: carnesValues, 
         acompanhamentos: acompValues, 
         bebidas: bebidaValues,
-        pagamento, tamanho, quantity, entrega, talher, observacoes,
+        pagamento, tamanho, quantity, entrega, talher, observacoes, sobremesa,
         baseAmount: baseAmountStr,
         frete: isEntrega ? freteStr : "",
         amount: amountStr,
@@ -90,6 +95,19 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         editingOrderId = null;
     } else {
         ordersQueue.push(order);
+    }
+
+    // Salva automaticamente o cliente se for novo
+    const clientExists = appData.clientes.some(c => c.nome.toLowerCase() === sender.toLowerCase());
+    if (!clientExists && sender && receiver && phone) {
+        appData.clientes.push({
+            id: Date.now(),
+            nome: sender,
+            endereco: receiver,
+            telefone: phone
+        });
+        db.writeDB(appData);
+        updateClientsDatalist();
     }
 
     updateQueueUI();
@@ -193,6 +211,7 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
                                 <br>
                                 <span class="info-value indent-list">${order.bebidas.map(i => `• ${i}`).join('<br>')}</span>
                             </div>` : ''}
+                            ${order.sobremesa ? `<div style="background:#fffaf0; padding:4px; font-size:9px; border-radius:4px; margin-top:5px; border-left: 2px solid var(--accent-color);"><strong>Sobremesa:</strong> ${order.sobremesa}</div>` : ''}
                             ${order.observacoes ? `<div style="background:#f7f7f7; padding:4px; font-size:9px; border-radius:4px; margin-top:5px;"><strong>Obs:</strong> ${order.observacoes}</div>` : ''}
                         </div>
                     </div>
@@ -344,6 +363,7 @@ window.editOrder = (orderId) => {
     document.getElementById('delivery-select').value = order.entrega;
     document.getElementById('talher-select').value = order.talher;
     document.getElementById('observation-input').value = order.observacoes;
+    document.getElementById('sobremesa-input').value = order.sobremesa || "";
 
     // Atualiza a visibilidade do frete baseado no que foi restaurado
     toggleFreteVisibility();
@@ -558,6 +578,10 @@ function fillFormWithRandomData() {
     // Adiciona uma bebida aleatória
     pickRandomOption('bebidas-container', 'bebida-select');
     
+    const desserts = ["Pudim de Leite", "Mousse de Maracujá", "Gelatina Colorida", "Salada de Frutas", "Brownie de Chocolate", "Pavê de Baunilha", "Nenhuma (Sem Sobremesa)"];
+    const randomDessert = desserts[Math.floor(Math.random() * desserts.length)];
+    document.getElementById('sobremesa-input').value = randomDessert === "Nenhuma (Sem Sobremesa)" ? "" : randomDessert;
+    
     document.getElementById('observation-input').value = "Caprichar no feijão! Teste automático.";
 }
 
@@ -580,3 +604,224 @@ document.getElementById('btnTestLayout').addEventListener('click', async () => {
     
     document.getElementById('btnShowSheet').click();
 });
+
+// POPULAR SELECTS E DATALIST DO BANCO DE DADOS
+function populateSelectOptions() {
+    // Carnes
+    const carnesSelects = document.querySelectorAll('.carne-select');
+    carnesSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="" disabled selected>Selecione uma carne...</option>';
+        appData.carnes.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            select.appendChild(opt);
+        });
+        select.value = currentValue;
+    });
+
+    // Acompanhamentos
+    const acompSelects = document.querySelectorAll('.acomp-select');
+    acompSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="" disabled selected>Selecione um acompanhamento...</option>';
+        appData.acompanhamentos.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            select.appendChild(opt);
+        });
+        select.value = currentValue;
+    });
+
+    // Bebidas
+    const bebidaSelects = document.querySelectorAll('.bebida-select');
+    bebidaSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="" disabled selected>Selecione uma bebida...</option>';
+        appData.bebidas.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            select.appendChild(opt);
+        });
+        select.value = currentValue;
+    });
+}
+
+function updateClientsDatalist() {
+    const datalist = document.getElementById('clientes-list');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    appData.clientes.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.nome;
+        datalist.appendChild(opt);
+    });
+}
+
+// Preenchimento automático ao digitar/selecionar cliente
+document.getElementById('senderName').addEventListener('input', (e) => {
+    const name = e.target.value.trim();
+    const client = appData.clientes.find(c => c.nome.toLowerCase() === name.toLowerCase());
+    if (client) {
+        document.getElementById('receiverName').value = client.endereco;
+        document.getElementById('receiverPhone').value = client.telefone;
+        document.getElementById('receiverPhone').dispatchEvent(new Event('input')); // Máscara
+    }
+});
+
+// LÓGICA DO MODAL DO BANCO DE DADOS
+const dbModal = document.getElementById('db-modal');
+
+document.getElementById('btnOpenDBManager').addEventListener('click', () => {
+    dbModal.classList.remove('hidden');
+    renderClientsTable();
+    renderItemsTable();
+});
+
+document.getElementById('btnCloseDBManager').addEventListener('click', () => {
+    dbModal.classList.add('hidden');
+});
+
+document.getElementById('btnBottomCloseDB').addEventListener('click', () => {
+    dbModal.classList.add('hidden');
+});
+
+// Tabs do modal
+const tabClientes = document.getElementById('tabClientes');
+const tabItens = document.getElementById('tabItens');
+const contentClientes = document.getElementById('contentClientes');
+const contentItens = document.getElementById('contentItens');
+
+tabClientes.addEventListener('click', () => {
+    tabClientes.classList.add('active-tab');
+    tabClientes.style.backgroundColor = '';
+    tabItens.classList.remove('active-tab');
+    tabItens.style.backgroundColor = '#718096';
+    contentClientes.classList.remove('hidden');
+    contentItens.classList.add('hidden');
+});
+
+tabItens.addEventListener('click', () => {
+    tabItens.classList.add('active-tab');
+    tabItens.style.backgroundColor = '';
+    tabClientes.classList.remove('active-tab');
+    tabClientes.style.backgroundColor = '#718096';
+    contentItens.classList.remove('hidden');
+    contentClientes.classList.add('hidden');
+});
+
+// Renderizar Clientes no Modal
+function renderClientsTable() {
+    const tbody = document.getElementById('dbClientsTableBody');
+    tbody.innerHTML = '';
+    appData.clientes.forEach(c => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="padding: 10px;">${c.nome}</td>
+            <td style="padding: 10px;">${c.endereco}</td>
+            <td style="padding: 10px;">${c.telefone}</td>
+            <td style="padding: 10px; text-align: center;">
+                <button type="button" class="btn-remove" onclick="deleteClient(${c.id})" style="padding: 4px 8px; font-size: 11px;">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+window.deleteClient = (id) => {
+    if (confirm("Deseja realmente excluir este cliente?")) {
+        appData.clientes = appData.clientes.filter(c => c.id !== id);
+        db.writeDB(appData);
+        updateClientsDatalist();
+        renderClientsTable();
+    }
+};
+
+// Formulário de adicionar cliente no modal
+document.getElementById('formAddClient').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('dbClientName').value.trim();
+    const endereco = document.getElementById('dbClientAddress').value.trim();
+    const telefone = document.getElementById('dbClientPhone').value.trim();
+    
+    if (appData.clientes.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+        alert("Já existe um cliente com este nome!");
+        return;
+    }
+    
+    appData.clientes.push({
+        id: Date.now(),
+        nome,
+        endereco,
+        telefone
+    });
+    db.writeDB(appData);
+    e.target.reset();
+    updateClientsDatalist();
+    renderClientsTable();
+});
+
+// Aplicar máscara de telefone no modal
+document.getElementById('dbClientPhone').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
+    value = value.replace(/(\d)(\d{4})$/, "$1-$2");
+    e.target.value = value.substring(0, 15);
+});
+
+// Itens (Carnes, Acomp, Bebidas) no Modal
+const dbItemListSelector = document.getElementById('dbItemListSelector');
+dbItemListSelector.addEventListener('change', () => {
+    renderItemsTable();
+});
+
+function renderItemsTable() {
+    const tbody = document.getElementById('dbItemsTableBody');
+    tbody.innerHTML = '';
+    const listName = dbItemListSelector.value;
+    const items = appData[listName];
+    
+    items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="padding: 10px;">${item}</td>
+            <td style="padding: 10px; text-align: center;">
+                <button type="button" class="btn-remove" onclick="deleteItem('${listName}', ${index})" style="padding: 4px 8px; font-size: 11px;">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+window.deleteItem = (listName, index) => {
+    if (confirm(`Deseja realmente excluir este item da lista de ${listName}?`)) {
+        appData[listName].splice(index, 1);
+        db.writeDB(appData);
+        renderItemsTable();
+        populateSelectOptions();
+    }
+};
+
+document.getElementById('formAddItem').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const itemName = document.getElementById('dbItemName').value.trim();
+    const listName = dbItemListSelector.value;
+    
+    if (appData[listName].some(item => item.toLowerCase() === itemName.toLowerCase())) {
+        alert("Este item já existe nesta lista!");
+        return;
+    }
+    
+    appData[listName].push(itemName);
+    db.writeDB(appData);
+    e.target.reset();
+    renderItemsTable();
+    populateSelectOptions();
+});
+
+// Inicialização dos dados na interface
+populateSelectOptions();
+updateClientsDatalist();
