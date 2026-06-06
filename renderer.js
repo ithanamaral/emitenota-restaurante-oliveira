@@ -674,6 +674,8 @@ document.getElementById('senderName').addEventListener('input', (e) => {
 
 // LÓGICA DO MODAL DO BANCO DE DADOS
 const dbModal = document.getElementById('db-modal');
+let editingDbClientId = null;
+let editingDbItemIndex = null;
 
 document.getElementById('btnOpenDBManager').addEventListener('click', () => {
     dbModal.classList.remove('hidden');
@@ -723,13 +725,30 @@ function renderClientsTable() {
             <td style="padding: 10px;">${c.nome}</td>
             <td style="padding: 10px;">${c.endereco}</td>
             <td style="padding: 10px;">${c.telefone}</td>
-            <td style="padding: 10px; text-align: center;">
+            <td style="padding: 10px; text-align: center; white-space: nowrap;">
+                <button type="button" class="btn-edit" onclick="editClient(${c.id})" style="padding: 4px 8px; font-size: 11px; margin-right: 4px;">✏️ Editar</button>
                 <button type="button" class="btn-remove" onclick="deleteClient(${c.id})" style="padding: 4px 8px; font-size: 11px;">Excluir</button>
             </td>
         `;
         tbody.appendChild(row);
     });
 }
+
+// Carrega os dados do cliente no formulário para edição
+window.editClient = (id) => {
+    const client = appData.clientes.find(c => c.id === id);
+    if (!client) return;
+
+    document.getElementById('dbClientName').value = client.nome;
+    document.getElementById('dbClientAddress').value = client.endereco;
+    document.getElementById('dbClientPhone').value = client.telefone;
+
+    editingDbClientId = id;
+
+    const submitBtn = document.getElementById('formAddClient').querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '🔄 Atualizar';
+    submitBtn.style.backgroundColor = '#3182ce';
+};
 
 window.deleteClient = (id) => {
     if (confirm("Deseja realmente excluir este cliente?")) {
@@ -740,28 +759,47 @@ window.deleteClient = (id) => {
     }
 };
 
-// Formulário de adicionar cliente no modal
+// Formulário de adicionar/atualizar cliente no modal
 document.getElementById('formAddClient').addEventListener('submit', (e) => {
     e.preventDefault();
     const nome = document.getElementById('dbClientName').value.trim();
     const endereco = document.getElementById('dbClientAddress').value.trim();
     const telefone = document.getElementById('dbClientPhone').value.trim();
     
-    if (appData.clientes.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
-        alert("Já existe um cliente com este nome!");
-        return;
+    if (editingDbClientId !== null) {
+        // Modo de atualização
+        const client = appData.clientes.find(c => c.id === editingDbClientId);
+        if (client) {
+            client.nome = nome;
+            client.endereco = endereco;
+            client.telefone = telefone;
+        }
+        editingDbClientId = null;
+    } else {
+        // Modo de criação
+        if (appData.clientes.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+            alert("Já existe um cliente com este nome!");
+            return;
+        }
+        appData.clientes.push({
+            id: Date.now(),
+            nome,
+            endereco,
+            telefone
+        });
     }
-    
-    appData.clientes.push({
-        id: Date.now(),
-        nome,
-        endereco,
-        telefone
-    });
     db.writeDB(appData);
-    e.target.reset();
+    e.target.reset(); // Aciona automaticamente o evento 'reset' abaixo para restaurar o botão
     updateClientsDatalist();
     renderClientsTable();
+});
+
+// Limpa/Cancela o estado de edição do cliente
+document.getElementById('formAddClient').addEventListener('reset', (e) => {
+    editingDbClientId = null;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '💾 Adicionar';
+    submitBtn.style.backgroundColor = '';
 });
 
 // Aplicar máscara de telefone no modal
@@ -788,13 +826,29 @@ function renderItemsTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="padding: 10px;">${item}</td>
-            <td style="padding: 10px; text-align: center;">
+            <td style="padding: 10px; text-align: center; white-space: nowrap;">
+                <button type="button" class="btn-edit" onclick="editItem('${listName}', ${index})" style="padding: 4px 8px; font-size: 11px; margin-right: 4px;">✏️ Editar</button>
                 <button type="button" class="btn-remove" onclick="deleteItem('${listName}', ${index})" style="padding: 4px 8px; font-size: 11px;">Excluir</button>
             </td>
         `;
         tbody.appendChild(row);
     });
 }
+
+// Carrega o item no formulário para edição
+window.editItem = (listName, index) => {
+    const item = appData[listName][index];
+    document.getElementById('dbItemName').value = item;
+
+    editingDbItemIndex = { listName, index };
+
+    const submitBtn = document.getElementById('formAddItem').querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '🔄 Atualizar';
+    submitBtn.style.backgroundColor = '#3182ce';
+
+    // Desativa a mudança de lista para evitar inconsistência na atualização
+    document.getElementById('dbItemListSelector').disabled = true;
+};
 
 window.deleteItem = (listName, index) => {
     if (confirm(`Deseja realmente excluir este item da lista de ${listName}?`)) {
@@ -810,16 +864,32 @@ document.getElementById('formAddItem').addEventListener('submit', (e) => {
     const itemName = document.getElementById('dbItemName').value.trim();
     const listName = dbItemListSelector.value;
     
-    if (appData[listName].some(item => item.toLowerCase() === itemName.toLowerCase())) {
-        alert("Este item já existe nesta lista!");
-        return;
+    if (editingDbItemIndex !== null) {
+        // Modo de atualização
+        const { listName: oldListName, index } = editingDbItemIndex;
+        appData[oldListName][index] = itemName;
+        editingDbItemIndex = null;
+    } else {
+        // Modo de criação
+        if (appData[listName].some(item => item.toLowerCase() === itemName.toLowerCase())) {
+            alert("Este item já existe nesta lista!");
+            return;
+        }
+        appData[listName].push(itemName);
     }
-    
-    appData[listName].push(itemName);
     db.writeDB(appData);
-    e.target.reset();
+    e.target.reset(); // Aciona automaticamente o reset abaixo
     renderItemsTable();
     populateSelectOptions();
+});
+
+// Limpa/Cancela o estado de edição do item
+document.getElementById('formAddItem').addEventListener('reset', (e) => {
+    editingDbItemIndex = null;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '💾 Adicionar';
+    submitBtn.style.backgroundColor = '';
+    document.getElementById('dbItemListSelector').disabled = false;
 });
 
 // Inicialização dos dados na interface
