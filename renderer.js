@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 
 let ordersQueue = []; // Buffer para guardar até 6 pedidos
+let editingOrderId = null; // Guarda o ID do pedido que está sendo editado
 
 document.getElementById('remessaForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         amountStr = formatBRL(baseAmount + frete);
     }
 
-    if (ordersQueue.length >= 6) {
+    if (editingOrderId === null && ordersQueue.length >= 6) {
         alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
         return;
     }
@@ -75,17 +76,61 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
         id: Math.floor(Math.random() * 1000000)
     };
 
-    ordersQueue.push(order);
+    const wasEditing = (editingOrderId !== null);
+
+    if (wasEditing) {
+        const index = ordersQueue.findIndex(o => o.id === editingOrderId);
+        if (index !== -1) {
+            order.id = editingOrderId; // preserva o ID original
+            order.date = ordersQueue[index].date; // preserva a data original
+            ordersQueue[index] = order; // atualiza na mesma posição
+        } else {
+            ordersQueue.push(order);
+        }
+        editingOrderId = null;
+    } else {
+        ordersQueue.push(order);
+    }
+
     updateQueueUI();
+    setEditMode(false);
     
     // Limpa o formulário e remove os selects extras
     e.target.reset();
     toggleFreteVisibility();
     document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
+
+    if (wasEditing) {
+        document.getElementById('btnShowSheet').click();
+    }
 });
 
 function updateQueueUI() {
-    document.getElementById('queue-count').innerText = ordersQueue.length;
+    const el = document.getElementById('queue-count');
+    if (el) el.innerText = ordersQueue.length;
+}
+
+// Controla a visibilidade e os textos dos botões na tela de formulário conforme o modo de edição
+function setEditMode(isEditing) {
+    const btnQuickFill = document.getElementById('btnQuickFill');
+    const btnShowSheet = document.getElementById('btnShowSheet');
+    const btnTestLayout = document.getElementById('btnTestLayout');
+    const btnCancelEdit = document.getElementById('btnCancelEdit');
+    const btnAddToList = document.getElementById('btnAddToList');
+
+    if (isEditing) {
+        btnQuickFill.classList.add('hidden');
+        btnShowSheet.classList.add('hidden');
+        btnTestLayout.classList.add('hidden');
+        btnCancelEdit.classList.remove('hidden');
+        btnAddToList.innerHTML = `➕ Atualizar na Folha`;
+    } else {
+        btnQuickFill.classList.remove('hidden');
+        btnShowSheet.classList.remove('hidden');
+        btnTestLayout.classList.remove('hidden');
+        btnCancelEdit.classList.add('hidden');
+        btnAddToList.innerHTML = `➕ Adicionar à Folha (<span id="queue-count">${ordersQueue.length}</span>/6)`;
+    }
 }
 
 // Botão para mostrar a grade de 6 notas
@@ -103,9 +148,10 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
             <div class="receipt-container">
                 <div class="receipt-actions no-print">
                     <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
+                    <button class="btn-delete" onclick="deleteOrder(${order.id})">🗑️ Excluir</button>
                 </div>
                 <div class="receipt-header">
-                    <img src="public/logo Restaurante oliveira.png" style="width: 40px !important;">
+                    <img src="public/logo-oliveira.png" style="width: 40px !important;">
                     <div class="header-titles">
                         <h1>RESTAURANTE OLIVEIRA REAL</h1>
                         <p class="receipt-id">#${order.id} • ${order.date.split(',')[0]}</p>
@@ -178,8 +224,24 @@ document.getElementById('btnClearQueue').addEventListener('click', () => {
     if(confirm("Deseja realmente limpar toda a folha?")) {
         ordersQueue = [];
         updateQueueUI();
+        editingOrderId = null;
+        setEditMode(false);
         document.getElementById('btnBack').click();
     }
+});
+
+// Botão de cancelar edição e voltar para a visualização da impressão
+document.getElementById('btnCancelEdit').addEventListener('click', () => {
+    editingOrderId = null;
+    setEditMode(false);
+    
+    // Limpa o formulário e remove os selects extras
+    document.getElementById('remessaForm').reset();
+    toggleFreteVisibility();
+    document.querySelectorAll('.btn-remove').forEach(btn => btn.parentElement.remove());
+
+    // Volta para o preview de impressão
+    document.getElementById('btnShowSheet').click();
 });
 
 // Funções auxiliares para manipulação de moeda BRL (ex: "20,00" <-> 20.0)
@@ -268,8 +330,7 @@ window.editOrder = (orderId) => {
     if (orderIndex === -1) return;
 
     const order = ordersQueue[orderIndex];
-    ordersQueue.splice(orderIndex, 1); // Remove da fila atual
-    updateQueueUI();
+    editingOrderId = orderId; // guarda o ID sendo editado
 
     // Preenche campos de texto e selects simples
     document.getElementById('senderName').value = order.sender;
@@ -316,8 +377,30 @@ window.editOrder = (orderId) => {
     rebuildDynamic('acompanhamentos-container', 'acomp-select', order.acompanhamentos);
     rebuildDynamic('bebidas-container', 'bebida-select', order.bebidas);
 
+    // Entra no modo de edição na UI
+    setEditMode(true);
+
     // Volta para a tela de formulário
     document.getElementById('btnBack').click();
+};
+
+// Função para excluir um pedido da fila
+window.deleteOrder = (orderId) => {
+    if (confirm("Deseja realmente excluir este pedido?")) {
+        const orderIndex = ordersQueue.findIndex(o => o.id === orderId);
+        if (orderIndex === -1) return;
+
+        ordersQueue.splice(orderIndex, 1); // Remove da fila atual
+        updateQueueUI();
+
+        // Se a fila ficar vazia, volta para a tela de formulário
+        if (ordersQueue.length === 0) {
+            document.getElementById('btnBack').click();
+        } else {
+            // Caso contrário, reconstrói o grid com os pedidos restantes
+            document.getElementById('btnShowSheet').click();
+        }
+    }
 };
 
 // Função para exibir o modal de confirmação assíncrono
