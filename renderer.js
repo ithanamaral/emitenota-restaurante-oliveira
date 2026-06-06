@@ -2,8 +2,17 @@ const { ipcRenderer } = require('electron');
 const db = require('./database.js');
 let appData = db.readDB();
 
+// Garante que o array de impressões exista
+if (!appData.impressoes) {
+    appData.impressoes = [];
+}
+
 let ordersQueue = []; // Buffer para guardar até 6 pedidos
 let editingOrderId = null; // Guarda o ID do pedido que está sendo editado
+let isViewingHistory = false; // Indica se estamos visualizando uma impressão do histórico
+let currentHistoryOrders = []; // Guarda os pedidos da folha histórica sendo visualizada
+let hasSavedCurrentQueue = false; // Evita salvar a mesma fila de impressão múltiplas vezes na mesma sessão
+
 
 document.getElementById('remessaForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -151,23 +160,20 @@ function setEditMode(isEditing) {
     }
 }
 
-// Botão para mostrar a grade de 6 notas
-document.getElementById('btnShowSheet').addEventListener('click', () => {
-    if (ordersQueue.length === 0) {
-        alert("Adicione pelo menos um pedido à folha.");
-        return;
-    }
-    
+// Função para renderizar a grade de notas (suporta ativa e histórica)
+function renderReceiptGrid(orders, isHistory = false) {
     const grid = document.getElementById('receipt-grid');
     grid.innerHTML = ''; // Limpa a grade antes de renderizar
 
-    ordersQueue.forEach(order => {
+    orders.forEach(order => {
         grid.innerHTML += `
             <div class="receipt-container">
+                ${!isHistory ? `
                 <div class="receipt-actions no-print">
                     <button class="btn-edit" onclick="editOrder(${order.id})">✏️ Editar</button>
                     <button class="btn-delete" onclick="deleteOrder(${order.id})">🗑️ Excluir</button>
                 </div>
+                ` : ''}
                 <div class="receipt-header">
                     <img src="public/logo-oliveira.png" style="width: 40px !important;">
                     <div class="header-titles">
@@ -197,19 +203,19 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
                             <div class="info-row">
                                 <span class="info-label">CARNES:</span>
                                 <br>
-                                <span class="info-value indent-list">${order.carnes.map(i => `• ${i}`).join('<br>')}</span>
+                                <div class="info-value indent-list">${order.carnes.map(i => `• ${i}`).join('<br>')}</div>
                             </div>` : ''}
                             ${order.acompanhamentos.length > 0 ? `
                             <div class="info-row">
                                 <span class="info-label">ACOMPANHAMENTOS:</span>
                                 <br>
-                                <span class="info-value indent-list">${order.acompanhamentos.map(i => `• ${i}`).join('<br>')}</span>
+                                <div class="info-value indent-list">${order.acompanhamentos.map(i => `• ${i}`).join('<br>')}</div>
                             </div>` : ''}
                             ${order.bebidas.length > 0 ? `
                             <div class="info-row">
                                 <span class="info-label">BEBIDAS:</span>
                                 <br>
-                                <span class="info-value indent-list">${order.bebidas.map(i => `• ${i}`).join('<br>')}</span>
+                                <div class="info-value indent-list">${order.bebidas.map(i => `• ${i}`).join('<br>')}</div>
                             </div>` : ''}
                             ${order.sobremesa ? `<div style="background:#fffaf0; padding:4px; font-size:9px; border-radius:4px; margin-top:5px; border-left: 2px solid var(--accent-color);"><strong>Sobremesa:</strong> ${order.sobremesa}</div>` : ''}
                             ${order.observacoes ? `<div style="background:#f7f7f7; padding:4px; font-size:9px; border-radius:4px; margin-top:5px;"><strong>Obs:</strong> ${order.observacoes}</div>` : ''}
@@ -234,6 +240,18 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
                 </div>
             </div>`;
     });
+}
+
+// Botão para mostrar a grade de 6 notas
+document.getElementById('btnShowSheet').addEventListener('click', () => {
+    if (ordersQueue.length === 0) {
+        alert("Adicione pelo menos um pedido à folha.");
+        return;
+    }
+    
+    isViewingHistory = false;
+    hasSavedCurrentQueue = false; // Permite salvar a fila ao clicar em Imprimir
+    renderReceiptGrid(ordersQueue, false);
 
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('receipt-area').classList.remove('hidden');
@@ -331,6 +349,18 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     btn.innerText = "Gerando PDF...";
     btn.disabled = true;
 
+    // Se não estiver visualizando o histórico, salva a folha atual no JSON do banco de dados
+    if (!isViewingHistory && !hasSavedCurrentQueue && ordersQueue.length > 0) {
+        const printSession = {
+            id: Date.now(),
+            date: new Date().toLocaleString('pt-BR'),
+            orders: JSON.parse(JSON.stringify(ordersQueue))
+        };
+        appData.impressoes.push(printSession);
+        db.writeDB(appData);
+        hasSavedCurrentQueue = true; // Marca como salvo para não duplicar nesta mesma visualização
+    }
+
     await ipcRenderer.invoke('print-to-pdf');
 
     btn.innerText = originalText;
@@ -340,7 +370,15 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
 // Botão Voltar (Na pré-visualização)
 document.getElementById('btnBack').addEventListener('click', () => {
     document.getElementById('receipt-area').classList.add('hidden');
-    document.getElementById('form-container').classList.remove('hidden');
+    if (isViewingHistory) {
+        document.getElementById('history-container').classList.remove('hidden');
+        isViewingHistory = false;
+        // Restaura as configurações originais da área de comprovante
+        document.getElementById('btnBack').innerText = "✏️ Voltar / Editar";
+        document.getElementById('btnClearQueue').classList.remove('hidden');
+    } else {
+        document.getElementById('form-container').classList.remove('hidden');
+    }
 });
 
 // Função para editar um pedido da fila
@@ -895,6 +933,104 @@ document.getElementById('formAddItem').addEventListener('reset', (e) => {
 // Inicialização dos dados na interface
 populateSelectOptions();
 updateClientsDatalist();
+
+// ==========================================
+// NAVEGAÇÃO & HISTÓRICO DE IMPRESSÕES
+// ==========================================
+
+// Listener dos botões do Menu Principal
+document.getElementById('btnMenuCriarNotas').addEventListener('click', () => {
+    document.getElementById('menu-container').classList.add('hidden');
+    document.getElementById('form-container').classList.remove('hidden');
+});
+
+document.getElementById('btnMenuDBManager').addEventListener('click', () => {
+    document.getElementById('btnOpenDBManager').click();
+});
+
+document.getElementById('btnMenuHistory').addEventListener('click', () => {
+    document.getElementById('menu-container').classList.add('hidden');
+    document.getElementById('history-container').classList.remove('hidden');
+    renderHistory();
+});
+
+// Voltar ao Menu Principal a partir do Histórico
+document.getElementById('btnBackToMenuFromHistory').addEventListener('click', () => {
+    document.getElementById('history-container').classList.add('hidden');
+    document.getElementById('menu-container').classList.remove('hidden');
+});
+
+// Voltar ao Menu Principal a partir da Criação de Notas
+document.getElementById('btnBackToMenu').addEventListener('click', () => {
+    document.getElementById('form-container').classList.add('hidden');
+    document.getElementById('menu-container').classList.remove('hidden');
+});
+
+// Função para listar as impressões salvas
+function renderHistory() {
+    const tbody = document.getElementById('historyTableBody');
+    const emptyDiv = document.getElementById('history-empty');
+    tbody.innerHTML = '';
+
+    if (!appData.impressoes || appData.impressoes.length === 0) {
+        emptyDiv.classList.remove('hidden');
+        return;
+    }
+    emptyDiv.classList.add('hidden');
+
+    // Ordena para exibir as mais recentes no topo
+    const impressoes = [...appData.impressoes].reverse();
+
+    impressoes.forEach(imp => {
+        const row = document.createElement('tr');
+        
+        let totalVal = 0;
+        imp.orders.forEach(o => {
+            totalVal += parseBRL(o.amount);
+        });
+        const totalBRL = formatBRL(totalVal);
+
+        row.innerHTML = `
+            <td>${imp.date}</td>
+            <td><span class="history-badge-count">${imp.orders.length} pedidos</span></td>
+            <td><span class="history-total-amount">R$ ${totalBRL}</span></td>
+            <td style="text-align: center; white-space: nowrap;">
+                <button type="button" class="btn-edit" onclick="viewHistoryItem(${imp.id})" style="margin-right: 6px;">🔍 Visualizar</button>
+                <button type="button" class="btn-delete" onclick="deleteHistoryItem(${imp.id})">🗑️ Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Visualizar um item do histórico
+window.viewHistoryItem = (id) => {
+    const imp = appData.impressoes.find(i => i.id === id);
+    if (!imp) return;
+
+    isViewingHistory = true;
+    currentHistoryOrders = imp.orders;
+
+    renderReceiptGrid(currentHistoryOrders, true);
+
+    document.getElementById('history-container').classList.add('hidden');
+    document.getElementById('receipt-area').classList.remove('hidden');
+
+    // Configura botões de controle na visualização
+    document.getElementById('btnClearQueue').classList.add('hidden');
+    const btnBack = document.getElementById('btnBack');
+    btnBack.innerText = "⬅️ Voltar para Histórico";
+};
+
+// Excluir um item do histórico
+window.deleteHistoryItem = (id) => {
+    if (confirm("Deseja realmente excluir esta folha de impressão do histórico?")) {
+        appData.impressoes = appData.impressoes.filter(i => i.id !== id);
+        db.writeDB(appData);
+        renderHistory();
+    }
+};
+
 
 // Oculta a tela de carregamento inicial (Splash Screen) após 2.5 segundos
 setTimeout(() => {

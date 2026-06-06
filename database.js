@@ -23,6 +23,7 @@ if (!fs.existsSync(dbPath) && fs.existsSync(localDbPath)) {
 
 // Valores iniciais e padrões para o banco de dados
 const defaultData = {
+    impressoes: [],
     clientes: [],
     carnes: [
         "Sem carnes",

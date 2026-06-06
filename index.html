@@ -16,12 +16,47 @@
         <div class="splash-spinner"></div>
     </div>
 
+    <!-- Menu de Início (Principal) -->
+    <div id="menu-container" class="container no-print">
+        <div class="header">
+            <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
+            <h1>Restaurante Oliveira Real</h1>
+            <p style="text-align: center; color: #718096; margin-top: -10px; font-weight: 500; width: 100%;">Sistema de Emissão de Notas</p>
+        </div>
+        <div class="menu-options">
+            <button type="button" id="btnMenuCriarNotas" class="btn-menu-primary">
+                <span class="menu-icon">✏️</span>
+                <div class="menu-btn-text">
+                    <h3>Criar Notas</h3>
+                    <p>Preencher e emitir novas folhas de pedidos</p>
+                </div>
+            </button>
+            <button type="button" id="btnMenuDBManager" class="btn-menu-secondary">
+                <span class="menu-icon">⚙️</span>
+                <div class="menu-btn-text">
+                    <h3>Configurações / Banco de Dados</h3>
+                    <p>Gerenciar clientes e itens do cardápio</p>
+                </div>
+            </button>
+            <button type="button" id="btnMenuHistory" class="btn-menu-secondary">
+                <span class="menu-icon">📄</span>
+                <div class="menu-btn-text">
+                    <h3>Visualizar Impressões</h3>
+                    <p>Histórico de folhas de impressão salvas</p>
+                </div>
+            </button>
+        </div>
+    </div>
+
     <!-- Área de Formulário (Não aparece na impressão) -->
-    <div id="form-container" class="container no-print">
+    <div id="form-container" class="container no-print hidden">
         <div class="header">
             <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
             <h1>Sistema de Notas Restaurante Oliveira Real</h1>
-            <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; background-color: var(--primary-color); font-size: 13px; margin-top: 10px;">⚙️ Configurações / Banco de Dados</button>
+            <div style="display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; flex-wrap: wrap;">
+                <button type="button" id="btnBackToMenu" class="btn-secondary" style="width: auto; padding: 10px 15px; font-size: 13px;">⬅️ Voltar ao Menu Principal</button>
+                <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; background-color: var(--primary-color); font-size: 13px;">⚙️ Configurações / Banco de Dados</button>
+            </div>
         </div>
         <form id="remessaForm">
             <!-- NOME -->
@@ -154,6 +189,38 @@
             <button type="button" id="btnTestLayout" class="btn-secondary"
                 style="margin-top: 10px; background-color: #17a2b8;">🧪 Testar Layout (6 notas)</button>
         </form>
+    </div>
+
+    <!-- Histórico de Impressões (Salvas) -->
+    <div id="history-container" class="container no-print hidden">
+        <div class="header">
+            <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
+            <h1>Histórico de Impressões</h1>
+            <p style="text-align: center; color: #718096; margin-top: -10px; font-weight: 500; width: 100%;">Folhas de pedidos salvas no sistema</p>
+        </div>
+        
+        <div style="margin-bottom: 20px; display: flex; justify-content: flex-start;">
+            <button type="button" id="btnBackToMenuFromHistory" class="btn-secondary" style="width: auto; padding: 10px 20px; display: flex; align-items: center; gap: 8px;">⬅️ Voltar ao Menu Principal</button>
+        </div>
+
+        <div class="history-list-wrapper">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Data / Hora</th>
+                        <th>Nº de Pedidos</th>
+                        <th>Valor Total</th>
+                        <th style="width: 220px; text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- Gerado dinamicamente -->
+                </tbody>
+            </table>
+            <div id="history-empty" class="history-empty">
+                📂 Nenhuma folha de impressão foi registrada ainda.
+            </div>
+        </div>
     </div>
 
     <!-- Área do Comprovante (Aparece na tela e na impressão) -->
