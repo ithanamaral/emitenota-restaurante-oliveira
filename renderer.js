@@ -895,3 +895,16 @@ document.getElementById('formAddItem').addEventListener('reset', (e) => {
 // Inicialização dos dados na interface
 populateSelectOptions();
 updateClientsDatalist();
+
+// Oculta a tela de carregamento inicial (Splash Screen) após 2.5 segundos
+setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        splash.style.opacity = '0';
+        splash.style.visibility = 'hidden';
+        // Remove o elemento do DOM após o término da transição CSS (600ms)
+        setTimeout(() => {
+            splash.remove();
+        }, 600);
+    }
+}, 2500);

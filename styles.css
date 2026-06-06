@@ -446,9 +446,61 @@ button:active {
     border-radius: 6px !important;
 }
 
+/* Tela de Carregamento Inicial (Splash Screen) */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), visibility 0.6s ease;
+}
+
+.splash-logo {
+    width: 280px;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.08));
+    animation: splashLogoEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.splash-spinner {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid var(--primary-color, #386632);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes splashLogoEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
 /* Regras de Impressão */
 @media print {
     .no-print { display: none !important; }
+    #splash-screen { display: none !important; }
     
     #receipt-area { 
         background: none !important; 
