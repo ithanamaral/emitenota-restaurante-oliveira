@@ -737,18 +737,14 @@ const contentItens = document.getElementById('contentItens');
 
 tabClientes.addEventListener('click', () => {
     tabClientes.classList.add('active-tab');
-    tabClientes.style.backgroundColor = '';
     tabItens.classList.remove('active-tab');
-    tabItens.style.backgroundColor = '#718096';
     contentClientes.classList.remove('hidden');
     contentItens.classList.add('hidden');
 });
 
 tabItens.addEventListener('click', () => {
     tabItens.classList.add('active-tab');
-    tabItens.style.backgroundColor = '';
     tabClientes.classList.remove('active-tab');
-    tabClientes.style.backgroundColor = '#718096';
     contentItens.classList.remove('hidden');
     contentClientes.classList.add('hidden');
 });
@@ -785,7 +781,6 @@ window.editClient = (id) => {
 
     const submitBtn = document.getElementById('formAddClient').querySelector('button[type="submit"]');
     submitBtn.innerHTML = '🔄 Atualizar';
-    submitBtn.style.backgroundColor = '#3182ce';
 };
 
 window.deleteClient = (id) => {
@@ -882,7 +877,6 @@ window.editItem = (listName, index) => {
 
     const submitBtn = document.getElementById('formAddItem').querySelector('button[type="submit"]');
     submitBtn.innerHTML = '🔄 Atualizar';
-    submitBtn.style.backgroundColor = '#3182ce';
 
     // Desativa a mudança de lista para evitar inconsistência na atualização
     document.getElementById('dbItemListSelector').disabled = true;

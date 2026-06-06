@@ -259,9 +259,16 @@ button:active {
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    color: white;
-    border: none;
+    background-color: #ffffff !important;
+    color: #996e0e !important;
+    border: 2px solid #f3e9d2 !important;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #fffdf9 !important;
+    border-color: #996e0e !important;
+    color: #996e0e !important;
 }
 
 .total {
@@ -391,24 +398,29 @@ button:active {
     font-size: 14px !important;
     font-weight: 600 !important;
     display: inline-block !important;
-    background-color: #718096 !important;
-    border: none;
+    background-color: #ffffff !important;
+    border: 2px solid #f3e9d2 !important;
     border-radius: 6px;
-    color: white;
+    color: #996e0e !important;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .tab-btn.active-tab {
-    background-color: var(--primary-color) !important;
+    background-color: #996e0e !important;
+    border-color: #996e0e !important;
+    color: #ffffff !important;
 }
 
 .tab-btn:hover {
-    background-color: #4a5568 !important;
+    background-color: #fffdf9 !important;
+    border-color: #996e0e !important;
 }
 
 .tab-btn.active-tab:hover {
-    background-color: var(--primary-hover) !important;
+    background-color: #805b0a !important;
+    border-color: #805b0a !important;
+    color: #ffffff !important;
 }
 
 #db-modal table {
@@ -615,46 +627,29 @@ button:active {
 }
 
 /* Botão Principal: Criar Notas */
-.btn-menu-primary {
-    border-color: #c59b27;
-    background-color: #fffdf5;
+.btn-menu-primary, .btn-menu-secondary {
+    border-color: #f3e9d2;
+    background-color: #ffffff;
 }
 
-.btn-menu-primary h3 {
+.btn-menu-primary h3, .btn-menu-secondary h3 {
     color: #996e0e;
 }
 
-.btn-menu-primary .menu-icon {
-    background-color: #fefaf0;
-}
-
-.btn-menu-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(153, 110, 14, 0.1);
-    border-color: #996e0e;
+.btn-menu-primary .menu-icon, .btn-menu-secondary .menu-icon {
     background-color: #fffdf0;
 }
 
-.btn-menu-primary:hover .menu-icon {
-    background-color: #996e0e;
-    transform: scale(1.1);
-}
-
-/* Botões Secundários */
-.btn-menu-secondary:hover {
+.btn-menu-primary:hover, .btn-menu-secondary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-    border-color: var(--primary-color);
-    background-color: #fcfdfc;
+    box-shadow: 0 8px 16px rgba(153, 110, 14, 0.06);
+    border-color: #996e0e;
+    background-color: #fffdf9;
 }
 
-.btn-menu-secondary:hover .menu-icon {
-    background-color: var(--primary-color);
-    transform: scale(1.1);
-}
-
-.btn-menu-secondary h3 {
-    color: var(--primary-color);
+.btn-menu-primary:hover .menu-icon, .btn-menu-secondary:hover .menu-icon {
+    background-color: #996e0e;
+    transform: scale(1.05);
 }
 
 /* Listagem do Histórico */

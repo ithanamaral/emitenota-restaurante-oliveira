@@ -55,7 +55,7 @@
             <h1>Sistema de Notas Restaurante Oliveira Real</h1>
             <div style="display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; flex-wrap: wrap;">
                 <button type="button" id="btnBackToMenu" class="btn-secondary" style="width: auto; padding: 10px 15px; font-size: 13px;">⬅️ Voltar ao Menu Principal</button>
-                <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; background-color: var(--primary-color); font-size: 13px;">⚙️ Configurações / Banco de Dados</button>
+                <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; font-size: 13px;">⚙️ Configurações / Banco de Dados</button>
             </div>
         </div>
         <form id="remessaForm">
@@ -181,13 +181,13 @@
             <div style="display: flex; gap: 10px;">
                 <button type="submit" id="btnAddToList" style="flex: 2;">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
                 <button type="button" id="btnQuickFill" class="btn-secondary"
-                    style="flex: 1; background-color: #6f42c1;">🪄 Preencher</button>
+                    style="flex: 1;">🪄 Preencher</button>
             </div>
-            <button type="button" id="btnCancelEdit" class="btn-secondary hidden" style="margin-top: 10px; background-color: #4a5568;">⬅️ Voltar para Visualizar Impressão</button>
+            <button type="button" id="btnCancelEdit" class="btn-secondary hidden" style="margin-top: 10px;">⬅️ Voltar para Visualizar Impressão</button>
             <button type="button" id="btnShowSheet" class="btn-secondary" style="margin-top: 10px;">📄 Visualizar Folha
                 para Impressão</button>
             <button type="button" id="btnTestLayout" class="btn-secondary"
-                style="margin-top: 10px; background-color: #17a2b8;">🧪 Testar Layout (6 notas)</button>
+                style="margin-top: 10px;">🧪 Testar Layout (6 notas)</button>
         </form>
     </div>
 
@@ -258,7 +258,7 @@
             <!-- Tabs para navegar entre Clientes e Itens -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
                 <button type="button" id="tabClientes" class="tab-btn active-tab" style="width: auto; padding: 8px 15px; font-size: 14px;">👥 Clientes</button>
-                <button type="button" id="tabItens" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px; background-color: #718096;">🍕 Cardápio (Itens)</button>
+                <button type="button" id="tabItens" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px;">🍕 Cardápio (Itens)</button>
             </div>
 
             <!-- Conteúdo da Tab Clientes -->
@@ -276,8 +276,8 @@
                         <label style="font-size: 12px; margin-bottom: 4px;">Telefone:</label>
                         <input type="text" id="dbClientPhone" placeholder="Telefone" required style="padding: 8px; font-size: 13px;">
                     </div>
-                    <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: var(--primary-color);">💾 Adicionar</button>
-                    <button type="reset" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: #a0aec0; color: white;">Limpar</button>
+                    <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px;">💾 Adicionar</button>
+                    <button type="reset" class="btn-secondary" style="width: auto !important; padding: 9px 15px !important; font-size: 13px; border-radius: 6px;">Limpar</button>
                 </form>
                 <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
@@ -312,8 +312,8 @@
                             <label style="font-size: 12px; margin-bottom: 4px;">Novo Item:</label>
                             <input type="text" id="dbItemName" placeholder="Nome do item..." required style="padding: 8px; font-size: 13px;">
                         </div>
-                        <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: var(--primary-color);">💾 Adicionar</button>
-                        <button type="reset" style="width: auto; padding: 9px 15px; font-size: 13px; background-color: #a0aec0; color: white;">Limpar</button>
+                        <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px;">💾 Adicionar</button>
+                        <button type="reset" class="btn-secondary" style="width: auto !important; padding: 9px 15px !important; font-size: 13px; border-radius: 6px;">Limpar</button>
                     </form>
                 </div>
                 <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -333,7 +333,7 @@
             
             <!-- Rodapé com botão grande de fechar -->
             <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; display: flex; justify-content: flex-end;">
-                <button type="button" id="btnBottomCloseDB" class="btn-secondary" style="width: auto !important; padding: 10px 20px; background-color: #4a5568; font-size: 14px; height: auto !important; display: inline-flex !important; align-items: center; justify-content: center;">⬅️ Fechar e Voltar ao Sistema</button>
+                <button type="button" id="btnBottomCloseDB" class="btn-secondary" style="width: auto !important; padding: 10px 20px; font-size: 14px; height: auto !important; display: inline-flex !important; align-items: center; justify-content: center;">⬅️ Fechar e Voltar ao Sistema</button>
             </div>
         </div>
     </div>
