@@ -195,7 +195,7 @@ function renderReceiptGrid(orders, isHistory = false) {
                             <span class="info-value">${order.phone}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">TAMANHO / QTD:</span>
+                            <span class="info-label">TAMANHO / Quantidade:</span>
                             <span class="info-value">${order.tamanho} (${order.quantity}x)</span>
                         </div>
                     ${order.carnes.length > 0 ? `
