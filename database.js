@@ -39,7 +39,7 @@ const defaultData = {
         "Filé de frango à milanesa",
         "Filé de frango grelhado",
         "Filé de peixe",
-        "Fraldinha bovina assada",
+        "Carne bovina assada",
         "Iscas de fígado bovino",
         "Linguiça suína assada",
         "Lombo suíno",
