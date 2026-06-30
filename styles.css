@@ -102,9 +102,9 @@ body {
 label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 600;
+    font-weight: bold;
     font-size: 14px;
-    color: #4a5568;
+    color: #2d3748;
 }
 
 input, select, textarea {
