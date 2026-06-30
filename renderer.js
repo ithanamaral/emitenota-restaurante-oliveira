@@ -1,6 +1,32 @@
 const { ipcRenderer } = require('electron');
+const fs = require('fs');
 const db = require('./database.js');
 let appData = db.readDB();
+
+// Observar mudanças no arquivo do banco de dados (a cada 500ms)
+fs.watchFile(db.getActiveDbPath(), { interval: 500 }, (curr, prev) => {
+    // Se a data de modificação mudou, significa que o arquivo foi salvo (local ou externamente)
+    if (curr.mtimeMs !== prev.mtimeMs) {
+        appData = db.readDB();
+        
+        // Atualiza as listas e selects visíveis na tela silenciosamente
+        populateSelectOptions();
+        updateClientsDatalist();
+        
+        // Se a tela de configuração estiver aberta, atualiza a tabela também
+        const dbModal = document.getElementById('db-modal');
+        if (dbModal && !dbModal.classList.contains('hidden')) {
+            renderClientsTable();
+            renderItemsTable();
+        }
+        
+        // Se a tela de histórico estiver aberta, atualiza a tabela
+        const historyContainer = document.getElementById('history-container');
+        if (historyContainer && !historyContainer.classList.contains('hidden')) {
+            renderHistory();
+        }
+    }
+});
 
 // Garante que o array de impressões exista
 if (!appData.impressoes) {
@@ -69,6 +95,9 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
 
     let amountStr = baseAmountStr;
     const isEntrega = (entrega === 'Entrega');
+    
+    // Atualiza o banco antes de manipular ids e clientes
+    appData = db.readDB();
     if (isEntrega && freteStr) {
         const baseAmount = parseBRL(baseAmountStr);
         const frete = parseBRL(freteStr);
@@ -352,6 +381,7 @@ document.getElementById('receiverPhone').addEventListener('input', (e) => {
 
 // Botão Imprimir (Na pré-visualização)
 document.getElementById('btnPrint').addEventListener('click', async () => {
+    appData = db.readDB(); // Atualiza o banco
     const btn = document.getElementById('btnPrint');
     const originalText = btn.innerText;
     
@@ -680,6 +710,7 @@ document.getElementById('btnTestLayout').addEventListener('click', async () => {
 
 // POPULAR SELECTS E DATALIST DO BANCO DE DADOS
 function populateSelectOptions() {
+    appData = db.readDB(); // Atualiza o banco
     // Carnes
     const carnesSelects = document.querySelectorAll('.carne-select');
     carnesSelects.forEach(select => {
@@ -724,6 +755,7 @@ function populateSelectOptions() {
 }
 
 function updateClientsDatalist() {
+    appData = db.readDB(); // Atualiza o banco
     const datalist = document.getElementById('clientes-list');
     if (!datalist) return;
     datalist.innerHTML = '';
@@ -786,6 +818,7 @@ tabItens.addEventListener('click', () => {
 
 // Renderizar Clientes no Modal
 function renderClientsTable() {
+    appData = db.readDB(); // Atualiza o banco
     const tbody = document.getElementById('dbClientsTableBody');
     tbody.innerHTML = '';
     appData.clientes.forEach(c => {
@@ -821,6 +854,7 @@ window.editClient = (id) => {
 window.deleteClient = async (id) => {
     const keep = await showCustomConfirm("Deseja realmente excluir este cliente?", "Sim", "Não");
     if (keep) {
+        appData = db.readDB(); // Atualiza o banco
         appData.clientes = appData.clientes.filter(c => c.id !== id);
         db.writeDB(appData);
         updateClientsDatalist();
@@ -831,6 +865,8 @@ window.deleteClient = async (id) => {
 // Formulário de adicionar/atualizar cliente no modal
 document.getElementById('formAddClient').addEventListener('submit', async (e) => {
     e.preventDefault();
+    appData = db.readDB(); // Atualiza o banco
+    
     const nome = document.getElementById('dbClientName').value.trim();
     const endereco = document.getElementById('dbClientAddress').value.trim();
     const telefone = document.getElementById('dbClientPhone').value.trim();
@@ -890,6 +926,7 @@ dbItemListSelector.addEventListener('change', () => {
 });
 
 function renderItemsTable() {
+    appData = db.readDB(); // Atualiza o banco
     const tbody = document.getElementById('dbItemsTableBody');
     tbody.innerHTML = '';
     const listName = dbItemListSelector.value;
@@ -925,6 +962,7 @@ window.editItem = (listName, index) => {
 window.deleteItem = async (listName, index) => {
     const keep = await showCustomConfirm(`Deseja realmente excluir este item da lista de ${listName}?`, "Sim", "Não");
     if (keep) {
+        appData = db.readDB(); // Atualiza o banco
         appData[listName].splice(index, 1);
         db.writeDB(appData);
         renderItemsTable();
@@ -934,6 +972,8 @@ window.deleteItem = async (listName, index) => {
 
 document.getElementById('formAddItem').addEventListener('submit', async (e) => {
     e.preventDefault();
+    appData = db.readDB(); // Atualiza o banco
+    
     const itemName = document.getElementById('dbItemName').value.trim();
     const listName = dbItemListSelector.value;
     
@@ -1007,6 +1047,7 @@ document.getElementById('btnBackToMenu').addEventListener('click', () => {
 
 // Função para listar as impressões salvas
 function renderHistory() {
+    appData = db.readDB(); // Atualiza o banco
     const tbody = document.getElementById('historyTableBody');
     const emptyDiv = document.getElementById('history-empty');
     tbody.innerHTML = '';
@@ -1065,6 +1106,7 @@ window.viewHistoryItem = (id) => {
 window.deleteHistoryItem = async (id) => {
     const keep = await showCustomConfirm("Deseja realmente excluir esta folha de impressão do histórico?", "Sim", "Não");
     if (keep) {
+        appData = db.readDB(); // Atualiza o banco
         appData.impressoes = appData.impressoes.filter(i => i.id !== id);
         db.writeDB(appData);
         renderHistory();
@@ -1084,3 +1126,66 @@ setTimeout(() => {
         }, 600);
     }
 }, 2500);
+
+// --- Lógica do Local do Banco de Dados ---
+const btnMenuDBLocation = document.getElementById('btnMenuDBLocation');
+const authModal = document.getElementById('auth-modal');
+const authUser = document.getElementById('authUser');
+const authPass = document.getElementById('authPass');
+const authError = document.getElementById('auth-error');
+const authLogin = document.getElementById('auth-login');
+const authCancel = document.getElementById('auth-cancel');
+
+const dbLocationModal = document.getElementById('db-location-modal');
+const currentDbPathEl = document.getElementById('current-db-path');
+const btnExportDb = document.getElementById('btnExportDb');
+const btnImportDb = document.getElementById('btnImportDb');
+const btnDbLocationClose = document.getElementById('btnDbLocationClose');
+
+btnMenuDBLocation.addEventListener('click', () => {
+    authUser.value = '';
+    authPass.value = '';
+    authError.classList.add('hidden');
+    authModal.classList.remove('hidden');
+    authUser.focus();
+});
+
+authCancel.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+});
+
+authLogin.addEventListener('click', () => {
+    if (authUser.value === 'oliveira' && authPass.value === 'oliveira') {
+        authModal.classList.add('hidden');
+        showDbLocationModal();
+    } else {
+        authError.classList.remove('hidden');
+    }
+});
+
+function showDbLocationModal() {
+    currentDbPathEl.innerText = db.getActiveDbPath();
+    dbLocationModal.classList.remove('hidden');
+}
+
+btnDbLocationClose.addEventListener('click', () => {
+    dbLocationModal.classList.add('hidden');
+});
+
+btnExportDb.addEventListener('click', () => {
+    const newPath = ipcRenderer.sendSync('export-db-location', 'db.json');
+    if (newPath) {
+        db.changeDbPath(newPath, true); // true = copy current
+        dbLocationModal.classList.add('hidden');
+        window.location.reload(); // Reload to refresh data
+    }
+});
+
+btnImportDb.addEventListener('click', () => {
+    const newPath = ipcRenderer.sendSync('select-db-location');
+    if (newPath) {
+        db.changeDbPath(newPath, false); // false = just point to it
+        dbLocationModal.classList.add('hidden');
+        window.location.reload(); // Reload to refresh data
+    }
+});

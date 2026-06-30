@@ -1,25 +1,59 @@
+const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Caminho do arquivo db.json fora do diretório do projeto para não disparar live-reload do Electron
-const dbDir = path.join(os.homedir(), '.emitenota-oliveira');
-const dbPath = path.join(dbDir, 'db.json');
+// Caminho do arquivo de configuração e diretório padrão
+const configDir = path.join(os.homedir(), '.emitenota-oliveira');
+const configPath = path.join(configDir, 'config.json');
+const defaultDbPath = path.join(configDir, 'db.json');
 const localDbPath = path.join(__dirname, 'db.json');
 
-// Garante que o diretório existe
-if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-}
+// Variável que guarda o caminho real do banco de dados a ser usado
+let activeDbPath = defaultDbPath;
 
-// Migra os dados já existentes do arquivo local, se houver
-if (!fs.existsSync(dbPath) && fs.existsSync(localDbPath)) {
-    try {
-        fs.copyFileSync(localDbPath, dbPath);
-    } catch (err) {
-        console.error("Erro ao migrar banco de dados local para a pasta pessoal:", err);
+// Função para inicializar e resolver o caminho do banco
+function initializeDbPath() {
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+
+    if (fs.existsSync(configPath)) {
+        try {
+            const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            if (config.dbPath) {
+                activeDbPath = config.dbPath;
+                return;
+            }
+        } catch (err) {
+            console.error("Erro ao ler config.json:", err);
+        }
+    }
+
+    // Se não tiver config.json, ou não tiver dbPath, perguntamos ao usuário via IPC Síncrono
+    if (ipcRenderer) {
+        const userPath = ipcRenderer.sendSync('ask-db-location');
+        if (userPath) {
+            activeDbPath = userPath;
+            fs.writeFileSync(configPath, JSON.stringify({ dbPath: activeDbPath }, null, 2), 'utf8');
+        } else {
+            // Se cancelou ou escolheu Padrão, salva o padrão para não perguntar mais
+            fs.writeFileSync(configPath, JSON.stringify({ dbPath: activeDbPath }, null, 2), 'utf8');
+            
+            // Migra os dados já existentes do arquivo local, se houver (somente se usar o padrão)
+            if (!fs.existsSync(activeDbPath) && fs.existsSync(localDbPath)) {
+                try {
+                    fs.copyFileSync(localDbPath, activeDbPath);
+                } catch (err) {
+                    console.error("Erro ao migrar banco de dados local para a pasta pessoal:", err);
+                }
+            }
+        }
     }
 }
+
+// Inicializa imediatamente
+initializeDbPath();
 
 // Valores iniciais e padrões para o banco de dados
 const defaultData = {
@@ -124,11 +158,11 @@ const defaultData = {
 // Carrega os dados ou inicializa com os padrões
 function readDB() {
     try {
-        if (!fs.existsSync(dbPath)) {
+        if (!fs.existsSync(activeDbPath)) {
             writeDB(defaultData);
             return defaultData;
         }
-        const data = fs.readFileSync(dbPath, 'utf8');
+        const data = fs.readFileSync(activeDbPath, 'utf8');
         return JSON.parse(data);
     } catch (err) {
         console.error("Erro ao ler banco de dados:", err);
@@ -139,13 +173,29 @@ function readDB() {
 // Salva os dados no db.json
 function writeDB(data) {
     try {
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
+        fs.writeFileSync(activeDbPath, JSON.stringify(data, null, 2), 'utf8');
     } catch (err) {
         console.error("Erro ao salvar no banco de dados:", err);
     }
 }
 
+// Retorna o caminho atual
+function getActiveDbPath() {
+    return activeDbPath;
+}
+
+// Muda o banco de dados e salva na configuração
+function changeDbPath(newPath, copyCurrent = false) {
+    if (copyCurrent && fs.existsSync(activeDbPath)) {
+        fs.copyFileSync(activeDbPath, newPath);
+    }
+    activeDbPath = newPath;
+    fs.writeFileSync(configPath, JSON.stringify({ dbPath: activeDbPath }, null, 2), 'utf8');
+}
+
 module.exports = {
     readDB,
-    writeDB
+    writeDB,
+    getActiveDbPath,
+    changeDbPath
 };

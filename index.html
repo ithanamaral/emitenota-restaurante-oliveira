@@ -45,6 +45,13 @@
                     <p>Histórico de folhas de impressão salvas</p>
                 </div>
             </button>
+            <button type="button" id="btnMenuDBLocation" class="btn-menu-secondary">
+                <span class="menu-icon">🔒</span>
+                <div class="menu-btn-text">
+                    <h3>Local do Banco de Dados</h3>
+                    <p>Exportar ou conectar a outro banco (Acesso Restrito)</p>
+                </div>
+            </button>
         </div>
     </div>
 
@@ -250,10 +257,60 @@
     <!-- Modal de Alerta Personalizado -->
     <div id="custom-alert" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3>⚠️ Aviso</h3>
+            <h3>Aviso</h3>
             <p id="alert-message"></p>
             <div class="modal-buttons">
                 <button id="alert-ok" class="btn-confirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Autenticação -->
+    <div id="auth-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Acesso Restrito</h3>
+            <p>Informe usuário e senha para prosseguir.</p>
+            <div class="form-group">
+                <label>Usuário:</label>
+                <input type="text" id="authUser" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="authPass">
+            </div>
+            <p id="auth-error" style="color: red; font-size: 13px; font-weight: bold;" class="hidden">Credenciais inválidas!</p>
+            <div class="modal-buttons" style="margin-top: 15px;">
+                <button id="auth-login" class="btn-confirm">Entrar</button>
+                <button id="auth-cancel" class="btn-cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gerenciamento de Local do DB -->
+    <div id="db-location-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>Gerenciar Banco de Dados</h3>
+            <p><strong>Local Atual:</strong></p>
+            <div style="background: #f1f5f9; padding: 10px; border-radius: 6px; word-wrap: break-word; font-family: monospace; font-size: 12px; margin-bottom: 20px;" id="current-db-path">
+                Carregando...
+            </div>
+            
+            <p style="font-size: 14px; margin-bottom: 20px; color: #4a5568;">O que você deseja fazer?</p>
+            
+            <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
+                <button id="btnExportDb" class="btn-secondary" style="width: 100%; text-align: left; padding: 15px;">
+                    <strong>📂 Copiar/Mover Banco Atual</strong><br>
+                    <span style="font-size: 12px; font-weight: normal;">Copia seus dados atuais para um novo local (ex: pendrive) e passa a usar este novo arquivo. O antigo será mantido como backup.</span>
+                </button>
+                
+                <button id="btnImportDb" class="btn-secondary" style="width: 100%; text-align: left; padding: 15px;">
+                    <strong>🔗 Conectar a Outro Banco</strong><br>
+                    <span style="font-size: 12px; font-weight: normal;">Selecione um arquivo db.json já existente em outro local para alimentar o sistema.</span>
+                </button>
+            </div>
+            
+            <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end;">
+                <button id="btnDbLocationClose" class="btn-cancel">Fechar</button>
             </div>
         </div>
     </div>

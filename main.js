@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -73,4 +73,60 @@ ipcMain.handle('print-to-pdf', async (event) => {
 
   fs.writeFileSync(pdfPath, data);
   await shell.openPath(pdfPath);
+});
+
+// Manipulador para perguntar o local do banco de dados na primeira execução
+ipcMain.on('ask-db-location', (event) => {
+  const choice = dialog.showMessageBoxSync({
+    type: 'question',
+    buttons: ['Criar Novo Banco de Dados', 'Localizar Banco Existente', 'Usar Padrão'],
+    defaultId: 0,
+    title: 'Configuração Inicial do Banco de Dados',
+    message: 'Bem-vindo! Onde deseja armazenar os dados do sistema?',
+    detail: 'Você pode criar um novo arquivo de dados (db.json), selecionar um arquivo existente ou usar o local padrão do sistema.'
+  });
+
+  let selectedPath = null;
+  if (choice === 0) { // Criar Novo
+    const savePath = dialog.showSaveDialogSync({
+      title: 'Salvar Novo Banco de Dados',
+      defaultPath: 'db.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    });
+    if (savePath) selectedPath = savePath;
+  } else if (choice === 1) { // Localizar Existente
+    const openPaths = dialog.showOpenDialogSync({
+      title: 'Localizar Banco de Dados Existente',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      properties: ['openFile']
+    });
+    if (openPaths && openPaths.length > 0) {
+      selectedPath = openPaths[0];
+    }
+  }
+
+  // Se for 2 (Usar Padrão) ou se cancelou (fechou a janela), retornamos null
+  event.returnValue = selectedPath;
+});
+
+// IPC para "Conectar a Outro Banco" (Abre direto o localizador)
+ipcMain.on('select-db-location', (event) => {
+  const openPaths = dialog.showOpenDialogSync({
+    title: 'Selecionar Banco de Dados db.json',
+    filters: [{ name: 'JSON', extensions: ['json'] }],
+    properties: ['openFile']
+  });
+  
+  event.returnValue = (openPaths && openPaths.length > 0) ? openPaths[0] : null;
+});
+
+// IPC para "Copiar/Mover Banco Atual" (Abre direto o salvador)
+ipcMain.on('export-db-location', (event, defaultName = 'db.json') => {
+  const savePath = dialog.showSaveDialogSync({
+    title: 'Salvar Cópia do Banco de Dados',
+    defaultPath: defaultName,
+    filters: [{ name: 'JSON', extensions: ['json'] }]
+  });
+  
+  event.returnValue = savePath || null;
 });
