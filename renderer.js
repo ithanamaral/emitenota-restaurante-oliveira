@@ -14,7 +14,7 @@ let currentHistoryOrders = []; // Guarda os pedidos da folha histórica sendo vi
 let hasSavedCurrentQueue = false; // Evita salvar a mesma fila de impressão múltiplas vezes na mesma sessão
 
 
-document.getElementById('remessaForm').addEventListener('submit', (e) => {
+document.getElementById('remessaForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     // Captura os dados
@@ -72,7 +72,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
     }
 
     if (editingOrderId === null && ordersQueue.length >= 6) {
-        alert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
+        await showCustomAlert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
         return;
     }
 
@@ -115,6 +115,7 @@ document.getElementById('remessaForm').addEventListener('submit', (e) => {
             endereco: receiver,
             telefone: phone
         });
+        appData.clientes.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
         db.writeDB(appData);
         updateClientsDatalist();
     }
@@ -243,9 +244,9 @@ function renderReceiptGrid(orders, isHistory = false) {
 }
 
 // Botão para mostrar a grade de 6 notas
-document.getElementById('btnShowSheet').addEventListener('click', () => {
+document.getElementById('btnShowSheet').addEventListener('click', async () => {
     if (ordersQueue.length === 0) {
-        alert("Adicione pelo menos um pedido à folha.");
+        await showCustomAlert("Adicione pelo menos um pedido à folha.");
         return;
     }
     
@@ -257,8 +258,9 @@ document.getElementById('btnShowSheet').addEventListener('click', () => {
     document.getElementById('receipt-area').classList.remove('hidden');
 });
 
-document.getElementById('btnClearQueue').addEventListener('click', () => {
-    if(confirm("Deseja realmente limpar toda a folha?")) {
+document.getElementById('btnClearQueue').addEventListener('click', async () => {
+    const keep = await showCustomConfirm("Deseja realmente limpar toda a folha?", "Sim", "Não");
+    if(keep) {
         ordersQueue = [];
         updateQueueUI();
         editingOrderId = null;
@@ -443,8 +445,9 @@ window.editOrder = (orderId) => {
 };
 
 // Função para excluir um pedido da fila
-window.deleteOrder = (orderId) => {
-    if (confirm("Deseja realmente excluir este pedido?")) {
+window.deleteOrder = async (orderId) => {
+    const keep = await showCustomConfirm("Deseja realmente excluir este pedido?", "Sim", "Não");
+    if (keep) {
         const orderIndex = ordersQueue.findIndex(o => o.id === orderId);
         if (orderIndex === -1) return;
 
@@ -462,7 +465,7 @@ window.deleteOrder = (orderId) => {
 };
 
 // Função para exibir o modal de confirmação assíncrono
-function showCustomConfirm(message) {
+function showCustomConfirm(message, yesText = "Sim, manter", noText = "Não, remover") {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-confirm');
         const msgEl = document.getElementById('confirm-message');
@@ -470,6 +473,8 @@ function showCustomConfirm(message) {
         const btnNo = document.getElementById('confirm-no');
 
         msgEl.innerText = message;
+        btnYes.innerText = yesText;
+        btnNo.innerText = noText;
         modal.classList.remove('hidden');
 
         const handleResponse = (response) => {
@@ -484,6 +489,28 @@ function showCustomConfirm(message) {
 
         btnYes.addEventListener('click', onYes);
         btnNo.addEventListener('click', onNo);
+    });
+}
+
+// Função para exibir o modal de alerta assíncrono
+function showCustomAlert(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-alert');
+        const msgEl = document.getElementById('alert-message');
+        const btnOk = document.getElementById('alert-ok');
+
+        msgEl.innerText = message;
+        modal.classList.remove('hidden');
+
+        const handleResponse = () => {
+            modal.classList.add('hidden');
+            btnOk.removeEventListener('click', onOk);
+            resolve();
+        };
+
+        const onOk = () => handleResponse();
+
+        btnOk.addEventListener('click', onOk);
     });
 }
 
@@ -628,7 +655,8 @@ document.getElementById('btnQuickFill').addEventListener('click', fillFormWithRa
 
 // Melhora o "Testar Layout" para simular o processo real de 6 notas
 document.getElementById('btnTestLayout').addEventListener('click', async () => {
-    if(!confirm("Isso irá limpar sua fila e gerar 6 pedidos reais para teste. Continuar?")) return;
+    const keep = await showCustomConfirm("Isso irá limpar sua fila e gerar 6 pedidos reais para teste. Continuar?", "Sim", "Não");
+    if(!keep) return;
     
     ordersQueue = [];
     updateQueueUI();
@@ -783,8 +811,9 @@ window.editClient = (id) => {
     submitBtn.innerHTML = '🔄 Atualizar';
 };
 
-window.deleteClient = (id) => {
-    if (confirm("Deseja realmente excluir este cliente?")) {
+window.deleteClient = async (id) => {
+    const keep = await showCustomConfirm("Deseja realmente excluir este cliente?", "Sim", "Não");
+    if (keep) {
         appData.clientes = appData.clientes.filter(c => c.id !== id);
         db.writeDB(appData);
         updateClientsDatalist();
@@ -793,7 +822,7 @@ window.deleteClient = (id) => {
 };
 
 // Formulário de adicionar/atualizar cliente no modal
-document.getElementById('formAddClient').addEventListener('submit', (e) => {
+document.getElementById('formAddClient').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('dbClientName').value.trim();
     const endereco = document.getElementById('dbClientAddress').value.trim();
@@ -811,7 +840,7 @@ document.getElementById('formAddClient').addEventListener('submit', (e) => {
     } else {
         // Modo de criação
         if (appData.clientes.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
-            alert("Já existe um cliente com este nome!");
+            await showCustomAlert("Já existe um cliente com este nome!");
             return;
         }
         appData.clientes.push({
@@ -821,6 +850,10 @@ document.getElementById('formAddClient').addEventListener('submit', (e) => {
             telefone
         });
     }
+    
+    // Mantém a lista de clientes em ordem alfabética
+    appData.clientes.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    
     db.writeDB(appData);
     e.target.reset(); // Aciona automaticamente o evento 'reset' abaixo para restaurar o botão
     updateClientsDatalist();
@@ -882,8 +915,9 @@ window.editItem = (listName, index) => {
     document.getElementById('dbItemListSelector').disabled = true;
 };
 
-window.deleteItem = (listName, index) => {
-    if (confirm(`Deseja realmente excluir este item da lista de ${listName}?`)) {
+window.deleteItem = async (listName, index) => {
+    const keep = await showCustomConfirm(`Deseja realmente excluir este item da lista de ${listName}?`, "Sim", "Não");
+    if (keep) {
         appData[listName].splice(index, 1);
         db.writeDB(appData);
         renderItemsTable();
@@ -891,7 +925,7 @@ window.deleteItem = (listName, index) => {
     }
 };
 
-document.getElementById('formAddItem').addEventListener('submit', (e) => {
+document.getElementById('formAddItem').addEventListener('submit', async (e) => {
     e.preventDefault();
     const itemName = document.getElementById('dbItemName').value.trim();
     const listName = dbItemListSelector.value;
@@ -904,11 +938,15 @@ document.getElementById('formAddItem').addEventListener('submit', (e) => {
     } else {
         // Modo de criação
         if (appData[listName].some(item => item.toLowerCase() === itemName.toLowerCase())) {
-            alert("Este item já existe nesta lista!");
+            await showCustomAlert("Este item já existe nesta lista!");
             return;
         }
         appData[listName].push(itemName);
     }
+    
+    // Mantém a lista de itens em ordem alfabética
+    appData[listName].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    
     db.writeDB(appData);
     e.target.reset(); // Aciona automaticamente o reset abaixo
     renderItemsTable();
@@ -1017,8 +1055,9 @@ window.viewHistoryItem = (id) => {
 };
 
 // Excluir um item do histórico
-window.deleteHistoryItem = (id) => {
-    if (confirm("Deseja realmente excluir esta folha de impressão do histórico?")) {
+window.deleteHistoryItem = async (id) => {
+    const keep = await showCustomConfirm("Deseja realmente excluir esta folha de impressão do histórico?", "Sim", "Não");
+    if (keep) {
         appData.impressoes = appData.impressoes.filter(i => i.id !== id);
         db.writeDB(appData);
         renderHistory();
