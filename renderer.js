@@ -7,6 +7,10 @@ if (!appData.impressoes) {
     appData.impressoes = [];
 }
 
+if (!appData.nextOrderId) {
+    appData.nextOrderId = 1;
+}
+
 let ordersQueue = []; // Buffer para guardar até 6 pedidos
 let editingOrderId = null; // Guarda o ID do pedido que está sendo editado
 let isViewingHistory = false; // Indica se estamos visualizando uma impressão do histórico
@@ -76,6 +80,8 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
         return;
     }
 
+    const wasEditing = (editingOrderId !== null);
+
     // Cria o objeto do pedido e adiciona à fila
     const order = {
         sender, receiver, phone, 
@@ -86,11 +92,8 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
         baseAmount: baseAmountStr,
         frete: isEntrega ? freteStr : "",
         amount: amountStr,
-        date: new Date().toLocaleString('pt-BR'),
-        id: Math.floor(Math.random() * 1000000)
+        date: new Date().toLocaleString('pt-BR')
     };
-
-    const wasEditing = (editingOrderId !== null);
 
     if (wasEditing) {
         const index = ordersQueue.findIndex(o => o.id === editingOrderId);
@@ -99,10 +102,14 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
             order.date = ordersQueue[index].date; // preserva a data original
             ordersQueue[index] = order; // atualiza na mesma posição
         } else {
+            order.id = appData.nextOrderId++;
+            db.writeDB(appData);
             ordersQueue.push(order);
         }
         editingOrderId = null;
     } else {
+        order.id = appData.nextOrderId++;
+        db.writeDB(appData);
         ordersQueue.push(order);
     }
 
