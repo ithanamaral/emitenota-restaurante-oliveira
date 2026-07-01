@@ -630,6 +630,10 @@ button:active {
     gap: 5px !important;
 }
 
+.header-centered img {
+    width: 220px !important; /* Aumenta a logo especificamente na tela de início */
+}
+
 .header-centered h1 {
     flex: none !important;
     width: 100% !important;
@@ -783,4 +787,198 @@ button:active {
     justify-content: center;
     font-weight: 600 !important;
     cursor: pointer;
+}
+
+/* ----- ESTILOS EXTRAÍDOS DO HTML ----- */
+.header-subtitle {
+    text-align: center; color: #718096; margin-top: -10px; font-weight: 500; width: 100%;
+}
+.nav-buttons-container {
+    display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; flex-wrap: wrap;
+}
+.btn-nav-action {
+    width: auto; padding: 10px 15px; font-size: 13px;
+}
+.form-group-highlight-box {
+    background-color: #f7fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 15px;
+}
+.checkbox-custom-label {
+    display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; color: #2d3748;
+}
+.checkbox-custom-input {
+    width: 18px; height: 18px;
+}
+.margin-top-10 {
+    margin-top: 10px;
+}
+.select-input-large {
+    width: 100%; padding: 10px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc;
+}
+.flex-container {
+    display: flex; gap: 10px;
+}
+.flex-col-2 {
+    flex: 2;
+}
+.flex-col-1 {
+    flex: 1;
+}
+.form-actions-row {
+    margin-bottom: 20px; display: flex; justify-content: flex-start;
+}
+.btn-icon-action {
+    width: auto; padding: 10px 20px; display: flex; align-items: center; gap: 8px;
+}
+.text-center-fixed-w {
+    width: 220px; text-align: center;
+}
+.error-message-text {
+    color: red; font-size: 13px; font-weight: bold;
+}
+.margin-top-15 {
+    margin-top: 15px;
+}
+.modal-content-medium {
+    max-width: 600px;
+}
+.info-box-path {
+    background: #f1f5f9; padding: 10px; border-radius: 6px; word-wrap: break-word; font-family: monospace; font-size: 12px; margin-bottom: 20px;
+}
+.modal-subtitle-text {
+    font-size: 14px; margin-bottom: 20px; color: #4a5568;
+}
+.flex-column-container {
+    flex-direction: column; gap: 10px;
+}
+.btn-list-item-full {
+    width: 100%; text-align: left; padding: 15px;
+}
+.small-info-text {
+    font-size: 12px; font-weight: normal;
+}
+.flex-end-container {
+    margin-top: 20px; justify-content: flex-end;
+}
+.modal-content-large {
+    max-width: 800px; width: 90%; text-align: left; padding: 25px;
+}
+.modal-header-section {
+    display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;
+}
+.modal-title-heading {
+    margin: 0; color: #996e0e; font-size: 20px;
+}
+.btn-close-modal-circle {
+    width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 50% !important; padding: 0 !important; background-color: #e53e3e; color: white; border: none; font-weight: bold; cursor: pointer; display: flex !important; align-items: center; justify-content: center; font-size: 14px; transform: none !important;
+}
+.form-row-group {
+    display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;
+}
+.btn-primary-medium {
+    width: auto; padding: 8px 15px; font-size: 14px;
+}
+.form-row-items {
+    display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-end;
+}
+.form-col-min150 {
+    flex: 1; min-width: 150px;
+}
+.form-input-label {
+    font-size: 12px; margin-bottom: 4px;
+}
+.form-input-field {
+    padding: 8px; font-size: 13px;
+}
+.form-col-min200 {
+    flex: 2; min-width: 200px;
+}
+.form-col-min120 {
+    flex: 1; min-width: 120px;
+}
+.btn-submit-action {
+    width: auto; padding: 9px 15px; font-size: 13px;
+}
+.btn-reset-action {
+    width: auto !important; padding: 9px 15px !important; font-size: 13px; border-radius: 6px;
+}
+.table-scroll-container {
+    max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;
+}
+.custom-data-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;
+}
+.table-header-row {
+    background-color: #f7fafc; border-bottom: 2px solid #e2e8f0;
+}
+.table-cell-default {
+    padding: 10px;
+}
+.table-cell-actions-60 {
+    padding: 10px; width: 60px; text-align: center;
+}
+.form-header-row-group {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: flex-end; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;
+}
+.form-select-field {
+    padding: 8px; font-size: 13px; width: 100%;
+}
+.form-input-field-full {
+    padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box;
+}
+.btn-delete-action {
+    width: auto; padding: 9px 15px; font-size: 13px; display: none;
+}
+.section-heading-dark {
+    margin: 0 0 10px 0; color: #2d3748;
+}
+.form-col-min150-f2 {
+    flex: 2; min-width: 150px;
+}
+.table-scroll-container-sm {
+    max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;
+}
+.form-row-gap15 {
+    display: flex; gap: 15px; margin-bottom: 15px;
+}
+.form-col-f2-end {
+    flex: 2; display: flex; gap: 10px; align-items: flex-end;
+}
+.settings-form-column {
+    display: flex; flex-direction: column; gap: 15px;
+}
+.settings-card-box {
+    background-color: #f7fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;
+}
+.settings-card-title {
+    margin-top: 0; margin-bottom: 15px; color: #2d3748;
+}
+.margin-bottom-15 {
+    margin-bottom: 15px;
+}
+.settings-input-label {
+    font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;
+}
+.settings-select-large {
+    padding: 10px; font-size: 14px; width: 100%; max-width: 300px;
+}
+.settings-row-center {
+    display: flex; gap: 15px; align-items: center; margin-bottom: 15px;
+}
+.settings-input-number {
+    padding: 8px; font-size: 14px; width: 80px;
+}
+.settings-input-number-lg {
+    padding: 8px; font-size: 14px; width: 100px;
+}
+.settings-help-text {
+    font-size: 12px; color: #718096; margin-left: 10px;
+}
+.btn-save-settings-primary {
+    align-self: flex-start; padding: 10px 20px;
+}
+.modal-footer-row {
+    margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; display: flex; justify-content: flex-end;
+}
+.btn-close-modal-large {
+    width: auto !important; padding: 10px 20px; font-size: 14px; height: auto !important; display: inline-flex !important; align-items: center; justify-content: center;
 }

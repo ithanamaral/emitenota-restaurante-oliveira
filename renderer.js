@@ -51,6 +51,16 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
     const sender = document.getElementById('senderName').value;
     const receiver = document.getElementById('receiverName').value;
     const phone = document.getElementById('receiverPhone').value;
+    
+    // Captura se é pedido de grupo
+    const isGroupOrder = document.getElementById('isGroupOrder').checked;
+    let groupName = "";
+    if (isGroupOrder) {
+        const orderGrupoSelector = document.getElementById('orderGrupoSelector');
+        if (orderGrupoSelector.selectedIndex > 0) {
+            groupName = orderGrupoSelector.options[orderGrupoSelector.selectedIndex].text;
+        }
+    }
 
     // Pega todas as opções selecionadas e as formata como tópicos (bullets)
     const carnesSelects = document.querySelectorAll('.carne-select');
@@ -118,7 +128,7 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
 
     // Cria o objeto do pedido e adiciona à fila
     const order = {
-        sender, receiver, phone, 
+        sender, receiver, phone, groupName,
         carnes: carnesValues, 
         acompanhamentos: acompValues, 
         bebidas: bebidaValues,
@@ -242,6 +252,11 @@ function renderReceiptGrid(orders, isHistory = false) {
                             <span class="info-label">CLIENTE:</span>
                             <span class="info-value highlight">${order.sender}</span>
                         </div>
+                        ${order.groupName ? `
+                        <div class="info-row">
+                            <span class="info-label">GRUPO/OBRA:</span>
+                            <span class="info-value"><strong>${order.groupName}</strong></span>
+                        </div>` : ''}
                         <div class="info-row">
                             <span class="info-label">ENDEREÇO:</span>
                             <span class="info-value">${order.receiver}</span>
@@ -474,6 +489,24 @@ window.editOrder = (orderId) => {
 
     const order = ordersQueue[orderIndex];
     editingOrderId = orderId; // guarda o ID sendo editado
+
+    if (order.groupName) {
+        document.getElementById('isGroupOrder').checked = true;
+        document.getElementById('groupOrderContainer').classList.remove('hidden');
+        populateOrderGrupoSelector();
+        const selector = document.getElementById('orderGrupoSelector');
+        for (let i = 0; i < selector.options.length; i++) {
+            if (selector.options[i].text === order.groupName) {
+                selector.selectedIndex = i;
+                break;
+            }
+        }
+    } else {
+        document.getElementById('isGroupOrder').checked = false;
+        document.getElementById('groupOrderContainer').classList.add('hidden');
+        document.getElementById('orderGrupoSelector').value = '';
+    }
+    updateClientsDatalist();
 
     // Preenche campos de texto e selects simples
     document.getElementById('senderName').value = order.sender;
@@ -801,25 +834,144 @@ function populateSelectOptions() {
     });
 }
 
+function getAllClients() {
+    appData = db.readDB();
+    let all = [...(appData.clientes || [])];
+    if (appData.grupos) {
+        appData.grupos.forEach(g => {
+            if (g.clientes) {
+                // Injetamos o endereço do grupo no cliente temporariamente para o autocomplete
+                const clientesComEndereco = g.clientes.map(c => ({
+                    ...c,
+                    endereco: g.endereco,
+                    _isGrupoClient: true,
+                    _grupoId: g.id
+                }));
+                all = all.concat(clientesComEndereco);
+            }
+        });
+    }
+    return all;
+}
+
+function getAvailableClientsForForm() {
+    const isGroupOrder = document.getElementById('isGroupOrder').checked;
+    const allClients = getAllClients();
+    
+    if (isGroupOrder) {
+        const groupId = parseInt(document.getElementById('orderGrupoSelector').value, 10);
+        if (groupId) {
+            return allClients.filter(c => c._isGrupoClient && c._grupoId === groupId);
+        } else {
+            return [];
+        }
+    } else {
+        // Modo normal (mostra só clientes que não são de grupos)
+        return allClients.filter(c => !c._isGrupoClient);
+    }
+}
+
 function updateClientsDatalist() {
-    appData = db.readDB(); // Atualiza o banco
+    const availableClients = getAvailableClientsForForm();
+    
     const datalist = document.getElementById('clientes-list');
-    if (!datalist) return;
-    datalist.innerHTML = '';
-    appData.clientes.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.nome;
-        datalist.appendChild(opt);
-    });
+    if (datalist) {
+        datalist.innerHTML = '';
+        availableClients.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.nome;
+            datalist.appendChild(opt);
+        });
+    }
+    
+    const enderecosList = document.getElementById('enderecos-list');
+    if (enderecosList) {
+        enderecosList.innerHTML = '';
+        availableClients.forEach(c => {
+            if (c.endereco) {
+                const opt = document.createElement('option');
+                opt.value = c.endereco;
+                enderecosList.appendChild(opt);
+            }
+        });
+    }
+}
+
+// Logic for Group Checkbox
+document.getElementById('isGroupOrder').addEventListener('change', (e) => {
+    const groupContainer = document.getElementById('groupOrderContainer');
+    if (e.target.checked) {
+        groupContainer.classList.remove('hidden');
+        populateOrderGrupoSelector();
+    } else {
+        groupContainer.classList.add('hidden');
+        document.getElementById('orderGrupoSelector').value = '';
+    }
+    updateClientsDatalist();
+    
+    // Clear fields when toggling mode
+    document.getElementById('senderName').value = '';
+    document.getElementById('receiverName').value = '';
+    document.getElementById('receiverPhone').value = '';
+});
+
+// Logic for Group Selector dropdown
+document.getElementById('orderGrupoSelector').addEventListener('change', (e) => {
+    const groupId = parseInt(e.target.value, 10);
+    appData = db.readDB();
+    const grupo = appData.grupos.find(g => g.id === groupId);
+    
+    if (grupo && grupo.endereco) {
+        document.getElementById('receiverName').value = grupo.endereco;
+    } else {
+        document.getElementById('receiverName').value = '';
+    }
+    
+    document.getElementById('senderName').value = '';
+    document.getElementById('receiverPhone').value = '';
+    updateClientsDatalist();
+});
+
+function populateOrderGrupoSelector() {
+    appData = db.readDB();
+    const selector = document.getElementById('orderGrupoSelector');
+    selector.innerHTML = '<option value="">-- Selecione o Grupo --</option>';
+    if (appData.grupos) {
+        appData.grupos.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.innerText = g.nome;
+            selector.appendChild(opt);
+        });
+    }
 }
 
 // Preenchimento automático ao digitar/selecionar cliente
 document.getElementById('senderName').addEventListener('input', (e) => {
     const name = e.target.value.trim();
-    const client = appData.clientes.find(c => c.nome.toLowerCase() === name.toLowerCase());
+    if (!name) return;
+    const availableClients = getAvailableClientsForForm();
+    const client = availableClients.find(c => c.nome.toLowerCase() === name.toLowerCase());
     if (client) {
-        document.getElementById('receiverName').value = client.endereco;
-        document.getElementById('receiverPhone').value = client.telefone;
+        document.getElementById('receiverName').value = client.endereco || '';
+        document.getElementById('receiverPhone').value = client.telefone || '';
+        document.getElementById('receiverPhone').dispatchEvent(new Event('input')); // Máscara
+    }
+});
+
+// Preenchimento automático ao digitar/selecionar endereço
+document.getElementById('receiverName').addEventListener('input', (e) => {
+    const address = e.target.value.trim();
+    if (!address) return;
+    // Se for pedido de grupo, não vamos preencher nome baseando no endereço,
+    // pois o endereço é igual pra todo mundo!
+    if (document.getElementById('isGroupOrder').checked) return;
+    
+    const availableClients = getAvailableClientsForForm();
+    const client = availableClients.find(c => c.endereco && c.endereco.toLowerCase() === address.toLowerCase());
+    if (client) {
+        document.getElementById('senderName').value = client.nome || '';
+        document.getElementById('receiverPhone').value = client.telefone || '';
         document.getElementById('receiverPhone').dispatchEvent(new Event('input')); // Máscara
     }
 });
@@ -845,27 +997,45 @@ document.getElementById('btnBottomCloseDB').addEventListener('click', () => {
 
 // Tabs do modal
 const tabClientes = document.getElementById('tabClientes');
+const tabGrupos = document.getElementById('tabGrupos');
 const tabItens = document.getElementById('tabItens');
 const tabPrint = document.getElementById('tabPrint');
 const contentClientes = document.getElementById('contentClientes');
+const contentGrupos = document.getElementById('contentGrupos');
 const contentItens = document.getElementById('contentItens');
 const contentPrint = document.getElementById('contentPrint');
 
 tabClientes.addEventListener('click', () => {
     tabClientes.classList.add('active-tab');
+    tabGrupos.classList.remove('active-tab');
     tabItens.classList.remove('active-tab');
     tabPrint.classList.remove('active-tab');
     contentClientes.classList.remove('hidden');
+    contentGrupos.classList.add('hidden');
     contentItens.classList.add('hidden');
     contentPrint.classList.add('hidden');
+});
+
+tabGrupos.addEventListener('click', () => {
+    tabGrupos.classList.add('active-tab');
+    tabClientes.classList.remove('active-tab');
+    tabItens.classList.remove('active-tab');
+    tabPrint.classList.remove('active-tab');
+    contentGrupos.classList.remove('hidden');
+    contentClientes.classList.add('hidden');
+    contentItens.classList.add('hidden');
+    contentPrint.classList.add('hidden');
+    renderGruposSelector();
 });
 
 tabItens.addEventListener('click', () => {
     tabItens.classList.add('active-tab');
     tabClientes.classList.remove('active-tab');
+    tabGrupos.classList.remove('active-tab');
     tabPrint.classList.remove('active-tab');
     contentItens.classList.remove('hidden');
     contentClientes.classList.add('hidden');
+    contentGrupos.classList.add('hidden');
     contentPrint.classList.add('hidden');
 });
 
@@ -880,9 +1050,11 @@ const printMaxOrders = document.getElementById('printMaxOrders');
 tabPrint.addEventListener('click', () => {
     tabPrint.classList.add('active-tab');
     tabClientes.classList.remove('active-tab');
+    tabGrupos.classList.remove('active-tab');
     tabItens.classList.remove('active-tab');
     contentPrint.classList.remove('hidden');
     contentClientes.classList.add('hidden');
+    contentGrupos.classList.add('hidden');
     contentItens.classList.add('hidden');
     
     appData = db.readDB();
@@ -935,6 +1107,240 @@ formPrintSettings.addEventListener('submit', (e) => {
     };
     db.writeDB(appData);
     window.location.reload(); // Recarrega para aplicar os estilos de folha corretamente
+});
+
+// ==========================================
+// LÓGICA DE GRUPOS
+// ==========================================
+let editingDbGrupoClientId = null;
+
+function renderGruposSelector() {
+    appData = db.readDB();
+    if (!appData.grupos) appData.grupos = [];
+    
+    const selector = document.getElementById('grupoSelector');
+    selector.innerHTML = '<option value="">-- Selecione --</option>';
+    
+    appData.grupos.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.id;
+        opt.innerText = g.nome;
+        selector.appendChild(opt);
+    });
+    
+    document.getElementById('grupoClientsArea').classList.add('hidden');
+    document.getElementById('btnDeleteGrupo').style.display = 'none';
+}
+
+document.getElementById('btnCreateGrupo').addEventListener('click', async () => {
+    const nome = document.getElementById('novoGrupoName').value.trim();
+    const endereco = document.getElementById('novoGrupoEndereco').value.trim();
+    if (!nome) return;
+    
+    const selector = document.getElementById('grupoSelector');
+    const groupId = parseInt(selector.value, 10);
+    
+    appData = db.readDB();
+    if (!appData.grupos) appData.grupos = [];
+    
+    if (groupId) {
+        // Modo Edição
+        const grupo = appData.grupos.find(g => g.id === groupId);
+        if (grupo) {
+            // Se mudou o nome e já existe outro com esse nome
+            if (grupo.nome.toLowerCase() !== nome.toLowerCase() && appData.grupos.some(g => g.nome.toLowerCase() === nome.toLowerCase())) {
+                await showCustomAlert("Já existe outro grupo com este nome!");
+                return;
+            }
+            grupo.nome = nome;
+            grupo.endereco = endereco;
+            
+            appData.grupos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+            db.writeDB(appData);
+            updateClientsDatalist();
+            renderGruposSelector();
+            
+            // Re-seleciona
+            const newSelector = document.getElementById('grupoSelector');
+            newSelector.value = groupId;
+            newSelector.dispatchEvent(new Event('change'));
+        }
+    } else {
+        // Modo Criação
+        if (appData.grupos.some(g => g.nome.toLowerCase() === nome.toLowerCase())) {
+            await showCustomAlert("Já existe um grupo com este nome!");
+            return;
+        }
+        
+        const newGroup = {
+            id: Date.now(),
+            nome: nome,
+            endereco: endereco,
+            clientes: []
+        };
+        appData.grupos.push(newGroup);
+        appData.grupos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+        
+        db.writeDB(appData);
+        document.getElementById('novoGrupoName').value = '';
+        document.getElementById('novoGrupoEndereco').value = '';
+        updateClientsDatalist();
+        renderGruposSelector();
+        
+        // Auto seleciona o novo grupo
+        const newSelector = document.getElementById('grupoSelector');
+        newSelector.value = newGroup.id;
+        newSelector.dispatchEvent(new Event('change'));
+    }
+});
+
+document.getElementById('btnDeleteGrupo').addEventListener('click', async () => {
+    const selector = document.getElementById('grupoSelector');
+    const groupId = parseInt(selector.value, 10);
+    if (!groupId) return;
+    
+    const keep = await showCustomConfirm("Deseja realmente excluir este grupo e todos os clientes dentro dele?", "Sim", "Não");
+    if (keep) {
+        appData = db.readDB();
+        appData.grupos = appData.grupos.filter(g => g.id !== groupId);
+        db.writeDB(appData);
+        updateClientsDatalist();
+        renderGruposSelector();
+    }
+});
+
+document.getElementById('grupoSelector').addEventListener('change', (e) => {
+    const groupId = parseInt(e.target.value, 10);
+    const clientsArea = document.getElementById('grupoClientsArea');
+    const btnDelete = document.getElementById('btnDeleteGrupo');
+    const btnCreate = document.getElementById('btnCreateGrupo');
+    const inputNome = document.getElementById('novoGrupoName');
+    const inputEndereco = document.getElementById('novoGrupoEndereco');
+    
+    if (!groupId) {
+        clientsArea.classList.add('hidden');
+        btnDelete.style.display = 'none';
+        btnCreate.innerHTML = '➕ Criar';
+        inputNome.value = '';
+        inputEndereco.value = '';
+        return;
+    }
+    
+    appData = db.readDB();
+    const grupo = appData.grupos.find(g => g.id === groupId);
+    if (grupo) {
+        inputNome.value = grupo.nome;
+        inputEndereco.value = grupo.endereco || '';
+        btnCreate.innerHTML = '🔄 Atualizar';
+    }
+    
+    clientsArea.classList.remove('hidden');
+    btnDelete.style.display = 'inline-block';
+    renderGrupoClientsTable(groupId);
+});
+
+function renderGrupoClientsTable(groupId) {
+    appData = db.readDB();
+    const grupo = appData.grupos.find(g => g.id === groupId);
+    const tbody = document.getElementById('dbGrupoClientsTableBody');
+    tbody.innerHTML = '';
+    
+    if (!grupo || !grupo.clientes) return;
+    
+    grupo.clientes.forEach(c => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="padding: 10px;">${c.nome}</td>
+            <td style="padding: 10px;">${c.telefone || '-'}</td>
+            <td style="padding: 10px; text-align: center; white-space: nowrap;">
+                <button type="button" class="btn-edit" onclick="editGrupoClient(${groupId}, ${c.id})" style="padding: 4px 8px; font-size: 11px; margin-right: 4px;">✏️ Editar</button>
+                <button type="button" class="btn-remove" onclick="deleteGrupoClient(${groupId}, ${c.id})" style="padding: 4px 8px; font-size: 11px;">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+window.editGrupoClient = (groupId, clientId) => {
+    const grupo = appData.grupos.find(g => g.id === groupId);
+    if (!grupo) return;
+    const client = grupo.clientes.find(c => c.id === clientId);
+    if (!client) return;
+
+    document.getElementById('dbGrupoClientName').value = client.nome;
+    document.getElementById('dbGrupoClientPhone').value = client.telefone || '';
+
+    editingDbGrupoClientId = clientId;
+    const submitBtn = document.getElementById('formAddGrupoClient').querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '🔄 Atualizar';
+};
+
+window.deleteGrupoClient = async (groupId, clientId) => {
+    const keep = await showCustomConfirm("Deseja realmente excluir este cliente do grupo?", "Sim", "Não");
+    if (keep) {
+        appData = db.readDB();
+        const grupo = appData.grupos.find(g => g.id === groupId);
+        if (grupo) {
+            grupo.clientes = grupo.clientes.filter(c => c.id !== clientId);
+            db.writeDB(appData);
+            updateClientsDatalist();
+            renderGrupoClientsTable(groupId);
+        }
+    }
+};
+
+document.getElementById('formAddGrupoClient').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const selector = document.getElementById('grupoSelector');
+    const groupId = parseInt(selector.value, 10);
+    if (!groupId) return;
+    
+    appData = db.readDB();
+    const grupo = appData.grupos.find(g => g.id === groupId);
+    if (!grupo) return;
+    if (!grupo.clientes) grupo.clientes = [];
+    
+    const nome = document.getElementById('dbGrupoClientName').value.trim();
+    const telefone = document.getElementById('dbGrupoClientPhone').value.trim();
+    
+    if (editingDbGrupoClientId !== null) {
+        const client = grupo.clientes.find(c => c.id === editingDbGrupoClientId);
+        if (client) {
+            client.nome = nome;
+            client.telefone = telefone;
+        }
+        editingDbGrupoClientId = null;
+    } else {
+        if (grupo.clientes.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+            await showCustomAlert("Já existe uma pessoa com este nome neste grupo!");
+            return;
+        }
+        grupo.clientes.push({
+            id: Date.now(),
+            nome,
+            telefone
+        });
+    }
+    
+    grupo.clientes.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    db.writeDB(appData);
+    e.target.reset();
+    updateClientsDatalist();
+    renderGrupoClientsTable(groupId);
+});
+
+document.getElementById('formAddGrupoClient').addEventListener('reset', (e) => {
+    editingDbGrupoClientId = null;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '💾 Adicionar';
+});
+
+// Aplicar máscara de telefone no modal do Grupo
+document.getElementById('dbGrupoClientPhone').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
+    value = value.replace(/(\d)(\d{4})$/, "$1-$2");
+    e.target.value = value.substring(0, 15);
 });
 
 // Renderizar Clientes no Modal

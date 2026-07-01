@@ -59,6 +59,56 @@ initializeDbPath();
 const defaultData = {
     impressoes: [],
     clientes: [],
+    grupos: [
+        {
+            id: 1,
+            nome: "Minas copy",
+            endereco: "Av. Canadá, 160 - Jardim Canada, Nova Lima - MG, 34007-654",
+            clientes: []
+        },
+        {
+            id: 2,
+            nome: "CMF",
+            endereco: "R. Star, 93 - Jardim Canada, Nova Lima - MG, 34007-666",
+            clientes: []
+        },
+        {
+            id: 3,
+            nome: "Sidrasul",
+            endereco: "Av. Vitória, 85 - Jardim Canada, Nova Lima - MG, 34000-000",
+            clientes: []
+        },
+        {
+            id: 4,
+            nome: "GHB",
+            endereco: "Retirada apenas",
+            clientes: []
+        },
+        {
+            id: 5,
+            nome: "Obra Hércules/Cido",
+            endereco: "Rua PITANGUEIRAS 405, Retiro das pedras",
+            clientes: []
+        },
+        {
+            id: 6,
+            nome: "MARCOS SOUZA",
+            endereco: "Avenida Toronto, 878 - Ljs 01 e 02 - Jardim Canada, Nova Lima - MG, 34007-658",
+            clientes: []
+        },
+        {
+            id: 7,
+            nome: "AMAVET",
+            endereco: "Av. Toronto, 878 - Jardim Canada, Nova Lima - MG, 34007-658",
+            clientes: []
+        },
+        {
+            id: 8,
+            nome: "LINK",
+            endereco: "Av. Vitória, 199 - Jardim Canada, Nova Lima - MG, 34000-000",
+            clientes: []
+        }
+    ],
     carnes: [
         "Sem carnes",
         "Bife bovino acebolado",

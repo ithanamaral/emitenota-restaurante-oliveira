@@ -20,8 +20,8 @@
     <div id="menu-container" class="container no-print">
         <div class="header header-centered">
             <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
-            <h1>Restaurante Oliveira Real</h1>
-            <p style="text-align: center; color: #718096; margin-top: -10px; font-weight: 500; width: 100%;">Sistema de Emissão de Notas</p>
+            <h1>Oliveira Real Restaurante</h1>
+            <p  class="header-subtitle">Sistema de Emissão de Notas</p>
         </div>
         <div class="menu-options">
             <button type="button" id="btnMenuCriarNotas" class="btn-menu-primary">
@@ -60,12 +60,26 @@
         <div class="header">
             <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
             <h1>Sistema de Notas Restaurante Oliveira Real</h1>
-            <div style="display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; flex-wrap: wrap;">
-                <button type="button" id="btnBackToMenu" class="btn-secondary" style="width: auto; padding: 10px 15px; font-size: 13px;">⬅️ Voltar ao Menu Principal</button>
-                <button type="button" id="btnOpenDBManager" class="btn-secondary" style="width: auto; padding: 10px 15px; font-size: 13px;">⚙️ Configurações / Banco de Dados</button>
+            <div  class="nav-buttons-container">
+                <button type="button" id="btnBackToMenu" class="btn-secondary btn-nav-action" >⬅️ Voltar ao Menu Principal</button>
+                <button type="button" id="btnOpenDBManager" class="btn-secondary btn-nav-action" >⚙️ Configurações / Banco de Dados</button>
             </div>
         </div>
         <form id="remessaForm">
+            <!-- GRUPO/OBRA -->
+            <div class="form-group form-group-highlight-box" >
+                <label  class="checkbox-custom-label">
+                    <input type="checkbox" id="isGroupOrder"  class="checkbox-custom-input">
+                    📌 Pedido de Grupo/Obra?
+                </label>
+                <div id="groupOrderContainer" class="hidden margin-top-10" >
+                    <label>Selecione o Grupo/Obra:</label>
+                    <select id="orderGrupoSelector"  class="select-input-large">
+                        <option value="">-- Selecione o Grupo --</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- NOME -->
             <div class="form-group">
                 <label>Nome do Cliente:</label>
@@ -75,12 +89,13 @@
             <!-- ENDEREÇO -->
             <div class="form-group">
                 <label>Endereço:</label>
-                <input type="text" id="receiverName" required>
+                <input type="text" id="receiverName" list="enderecos-list" autocomplete="off">
+                <datalist id="enderecos-list"></datalist>
             </div>
             <!-- TELEFONE -->
             <div class="form-group">
                 <label>Telefone:</label>
-                <input type="text" id="receiverPhone" placeholder="(00) 00000-0000" required>
+                <input type="text" id="receiverPhone" placeholder="(00) 00000-0000">
             </div>
             <!-- TAMANHOS -->
             <div class="form-group" id="tamanho-group">
@@ -185,16 +200,16 @@
                 <label>Valor do Frete:</label>
                 <input type="text" id="fretevalue" inputmode="numeric" placeholder="0,00">
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" id="btnAddToList" style="flex: 2;">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
-                <button type="button" id="btnQuickFill" class="btn-secondary"
-                    style="flex: 1;">🪄 Preencher</button>
+            <div  class="flex-container">
+                <button type="submit" id="btnAddToList"  class="flex-col-2">➕ Adicionar à Folha (<span id="queue-count">0</span>/6)</button>
+                <button type="button" id="btnQuickFill" class="btn-secondary flex-col-1"
+                    >🪄 Preencher</button>
             </div>
-            <button type="button" id="btnCancelEdit" class="btn-secondary hidden" style="margin-top: 10px;">⬅️ Voltar para Visualizar Impressão</button>
-            <button type="button" id="btnShowSheet" class="btn-secondary" style="margin-top: 10px;">📄 Visualizar Folha
+            <button type="button" id="btnCancelEdit" class="btn-secondary hidden margin-top-10" >⬅️ Voltar para Visualizar Impressão</button>
+            <button type="button" id="btnShowSheet" class="btn-secondary margin-top-10" >📄 Visualizar Folha
                 para Impressão</button>
-            <button type="button" id="btnTestLayout" class="btn-secondary"
-                style="margin-top: 10px;">🧪 Testar Layout (6 notas)</button>
+            <button type="button" id="btnTestLayout" class="btn-secondary margin-top-10"
+                >🧪 Testar Layout (6 notas)</button>
         </form>
     </div>
 
@@ -203,11 +218,11 @@
         <div class="header header-centered">
             <img src="public/logo-oliveira.png" alt="logo oliveira Restaurante">
             <h1>Histórico de Impressões</h1>
-            <p style="text-align: center; color: #718096; margin-top: -10px; font-weight: 500; width: 100%;">Folhas de pedidos salvas no sistema</p>
+            <p  class="header-subtitle">Folhas de pedidos salvas no sistema</p>
         </div>
         
-        <div style="margin-bottom: 20px; display: flex; justify-content: flex-start;">
-            <button type="button" id="btnBackToMenuFromHistory" class="btn-secondary" style="width: auto; padding: 10px 20px; display: flex; align-items: center; gap: 8px;">⬅️ Voltar ao Menu Principal</button>
+        <div  class="form-actions-row">
+            <button type="button" id="btnBackToMenuFromHistory" class="btn-secondary btn-icon-action" >⬅️ Voltar ao Menu Principal</button>
         </div>
 
         <div class="history-list-wrapper">
@@ -217,7 +232,7 @@
                         <th>Data / Hora</th>
                         <th>Nº de Pedidos</th>
                         <th>Valor Total</th>
-                        <th style="width: 220px; text-align: center;">Ações</th>
+                        <th  class="text-center-fixed-w">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody">
@@ -278,8 +293,8 @@
                 <label>Senha:</label>
                 <input type="password" id="authPass">
             </div>
-            <p id="auth-error" style="color: red; font-size: 13px; font-weight: bold;" class="hidden">Credenciais inválidas!</p>
-            <div class="modal-buttons" style="margin-top: 15px;">
+            <p id="auth-error"  class="hidden error-message-text">Credenciais inválidas!</p>
+            <div class="modal-buttons margin-top-15" >
                 <button id="auth-login" class="btn-confirm">Entrar</button>
                 <button id="auth-cancel" class="btn-cancel">Cancelar</button>
             </div>
@@ -288,28 +303,28 @@
 
     <!-- Modal de Gerenciamento de Local do DB -->
     <div id="db-location-modal" class="modal-overlay hidden">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content modal-content-medium" >
             <h3>Gerenciar Banco de Dados</h3>
             <p><strong>Local Atual:</strong></p>
-            <div style="background: #f1f5f9; padding: 10px; border-radius: 6px; word-wrap: break-word; font-family: monospace; font-size: 12px; margin-bottom: 20px;" id="current-db-path">
+            <div  id="current-db-path" class="info-box-path">
                 Carregando...
             </div>
             
-            <p style="font-size: 14px; margin-bottom: 20px; color: #4a5568;">O que você deseja fazer?</p>
+            <p  class="modal-subtitle-text">O que você deseja fazer?</p>
             
-            <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
-                <button id="btnExportDb" class="btn-secondary" style="width: 100%; text-align: left; padding: 15px;">
+            <div class="modal-buttons flex-container-column-container" >
+                <button id="btnExportDb" class="btn-secondary btn-list-item-full" >
                     <strong>📂 Copiar/Mover Banco Atual</strong><br>
-                    <span style="font-size: 12px; font-weight: normal;">Copia seus dados atuais para um novo local (ex: pendrive) e passa a usar este novo arquivo. O antigo será mantido como backup.</span>
+                    <span  class="small-info-text">Copia seus dados atuais para um novo local (ex: pendrive) e passa a usar este novo arquivo. O antigo será mantido como backup.</span>
                 </button>
                 
-                <button id="btnImportDb" class="btn-secondary" style="width: 100%; text-align: left; padding: 15px;">
+                <button id="btnImportDb" class="btn-secondary btn-list-item-full" >
                     <strong>🔗 Conectar a Outro Banco</strong><br>
-                    <span style="font-size: 12px; font-weight: normal;">Selecione um arquivo db.json já existente em outro local para alimentar o sistema.</span>
+                    <span  class="small-info-text">Selecione um arquivo db.json já existente em outro local para alimentar o sistema.</span>
                 </button>
             </div>
             
-            <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end;">
+            <div class="modal-buttons flex-container-end-container" >
                 <button id="btnDbLocationClose" class="btn-cancel">Fechar</button>
             </div>
         </div>
@@ -317,45 +332,46 @@
 
     <!-- Modal de Gerenciamento de Banco de Dados -->
     <div id="db-modal" class="modal-overlay hidden">
-        <div class="modal-content" style="max-width: 800px; width: 90%; text-align: left; padding: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 style="margin: 0; color: #996e0e; font-size: 20px;">⚙️ Configurações / Banco de Dados</h2>
-                <button type="button" id="btnCloseDBManager" style="width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 50% !important; padding: 0 !important; background-color: #e53e3e; color: white; border: none; font-weight: bold; cursor: pointer; display: flex !important; align-items: center; justify-content: center; font-size: 14px; transform: none !important;">X</button>
+        <div class="modal-content modal-content-large" >
+            <div  class="modal-header-section">
+                <h2  class="modal-title-heading">⚙️ Configurações / Banco de Dados</h2>
+                <button type="button" id="btnCloseDBManager"  class="btn-close-modal-circle">X</button>
             </div>
             
             <!-- Tabs para navegar entre Clientes e Itens -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-                <button type="button" id="tabClientes" class="tab-btn active-tab" style="width: auto; padding: 8px 15px; font-size: 14px;">👥 Clientes</button>
-                <button type="button" id="tabItens" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px;">🍕 Cardápio (Itens)</button>
-                <button type="button" id="tabPrint" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px;">🖨️ Folha Personalizada</button>
+            <div  class="form-row-group">
+                <button type="button" id="tabClientes" class="tab-btn active-tab btn-primary-medium" >👥 Clientes</button>
+                <button type="button" id="tabGrupos" class="tab-btn btn-primary-medium" >📁 Grupos</button>
+                <button type="button" id="tabItens" class="tab-btn btn-primary-medium" >🍕 Cardápio (Itens)</button>
+                <button type="button" id="tabPrint" class="tab-btn btn-primary-medium" >🖨️ Folha Personalizada</button>
             </div>
 
             <!-- Conteúdo da Tab Clientes -->
             <div id="contentClientes">
-                <form id="formAddClient" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-end;">
-                    <div style="flex: 1; min-width: 150px;">
-                        <label style="font-size: 12px; margin-bottom: 4px;">Nome:</label>
-                        <input type="text" id="dbClientName" placeholder="Nome do Cliente" required style="padding: 8px; font-size: 13px;">
+                <form id="formAddClient"  class="form-row-items">
+                    <div  class="form-col-min150">
+                        <label  class="form-input-label">Nome:</label>
+                        <input type="text" id="dbClientName" placeholder="Nome do Cliente" required  class="form-input-field">
                     </div>
-                    <div style="flex: 2; min-width: 200px;">
-                        <label style="font-size: 12px; margin-bottom: 4px;">Endereço:</label>
-                        <input type="text" id="dbClientAddress" placeholder="Endereço Completo" required style="padding: 8px; font-size: 13px;">
+                    <div  class="form-col-min200">
+                        <label  class="form-input-label">Endereço:</label>
+                        <input type="text" id="dbClientAddress" placeholder="Endereço Completo"  class="form-input-field">
                     </div>
-                    <div style="flex: 1; min-width: 120px;">
-                        <label style="font-size: 12px; margin-bottom: 4px;">Telefone:</label>
-                        <input type="text" id="dbClientPhone" placeholder="Telefone" required style="padding: 8px; font-size: 13px;">
+                    <div  class="form-col-min120">
+                        <label  class="form-input-label">Telefone:</label>
+                        <input type="text" id="dbClientPhone" placeholder="Telefone"  class="form-input-field">
                     </div>
-                    <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px;">💾 Adicionar</button>
-                    <button type="reset" class="btn-secondary" style="width: auto !important; padding: 9px 15px !important; font-size: 13px; border-radius: 6px;">Limpar</button>
+                    <button type="submit"  class="btn-submit-action">💾 Adicionar</button>
+                    <button type="reset" class="btn-secondary btn-reset-action" >Limpar</button>
                 </form>
-                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <div  class="table-scroll-container">
+                    <table  class="custom-data-table">
                         <thead>
-                            <tr style="background-color: #f7fafc; border-bottom: 2px solid #e2e8f0;">
-                                <th style="padding: 10px;">Nome</th>
-                                <th style="padding: 10px;">Endereço</th>
-                                <th style="padding: 10px;">Telefone</th>
-                                <th style="padding: 10px; width: 60px; text-align: center;">Ações</th>
+                            <tr  class="table-header-row">
+                                <th  class="table-cell-default">Nome</th>
+                                <th  class="table-cell-default">Endereço</th>
+                                <th  class="table-cell-default">Telefone</th>
+                                <th  class="table-cell-actions-60">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="dbClientsTableBody">
@@ -365,32 +381,83 @@
                 </div>
             </div>
 
+            <!-- Conteúdo da Tab Grupos -->
+            <div id="contentGrupos" class="hidden">
+                <div  class="form-header-row-group">
+                    <div  class="flex-col-1">
+                        <label  class="form-input-label">Selecione um Grupo:</label>
+                        <select id="grupoSelector"  class="form-select-field">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                    </div>
+                    <div  class="flex-col-1">
+                        <label  class="form-input-label">Nome do Grupo:</label>
+                        <input type="text" id="novoGrupoName" placeholder="Ex: Empresa XYZ"  class="form-input-field-full">
+                    </div>
+                    <div  class="flex-col-1">
+                        <label  class="form-input-label">Endereço do Grupo (Opcional):</label>
+                        <input type="text" id="novoGrupoEndereco" placeholder="Av. Principal, 123"  class="form-input-field-full">
+                    </div>
+                    <button type="button" id="btnCreateGrupo"  class="btn-submit-action">➕ Criar</button>
+                    <button type="button" id="btnDeleteGrupo" class="btn-remove btn-delete-action" >🗑️ Excluir Grupo e Clientes</button>
+                </div>
+
+                <div id="grupoClientsArea" class="hidden">
+                    <h4  class="section-heading-dark">Clientes do Grupo</h4>
+                    <form id="formAddGrupoClient"  class="form-row-items">
+                        <div  class="form-col-min150-flex-col-2">
+                            <label  class="form-input-label">Nome do Funcionário/Pessoa:</label>
+                            <input type="text" id="dbGrupoClientName" placeholder="Insira o nome aqui" required  class="form-input-field">
+                        </div>
+                        <div  class="form-col-min120">
+                            <label  class="form-input-label">Telefone (Opcional):</label>
+                            <input type="text" id="dbGrupoClientPhone" placeholder="(00) 00000-0000"  class="form-input-field">
+                        </div>
+                        <button type="submit"  class="btn-submit-action">💾 Adicionar Pessoa</button>
+                        <button type="reset" class="btn-secondary btn-reset-action" >Limpar</button>
+                    </form>
+                    <div  class="table-scroll-container-sm">
+                        <table  class="custom-data-table">
+                            <thead>
+                                <tr  class="table-header-row">
+                                    <th  class="table-cell-default">Nome</th>
+                                    <th  class="table-cell-default">Telefone</th>
+                                    <th  class="table-cell-actions-60">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dbGrupoClientsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Conteúdo da Tab Itens -->
             <div id="contentItens" class="hidden">
-                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 12px; margin-bottom: 4px;">Selecione a Lista:</label>
-                        <select id="dbItemListSelector" style="padding: 8px; font-size: 13px;">
+                <div  class="form-row-gap15">
+                    <div  class="flex-col-1">
+                        <label  class="form-input-label">Selecione a Lista:</label>
+                        <select id="dbItemListSelector"  class="form-input-field">
                             <option value="carnes">🥩 Carnes</option>
                             <option value="acompanhamentos">🍚 Acompanhamentos</option>
                             <option value="bebidas">🥤 Bebidas</option>
                         </select>
                     </div>
-                    <form id="formAddItem" style="flex: 2; display: flex; gap: 10px; align-items: flex-end;">
-                        <div style="flex: 1;">
-                            <label style="font-size: 12px; margin-bottom: 4px;">Novo Item:</label>
-                            <input type="text" id="dbItemName" placeholder="Nome do item..." required style="padding: 8px; font-size: 13px;">
+                    <form id="formAddItem"  class="form-col-flex-col-2-end">
+                        <div  class="flex-col-1">
+                            <label  class="form-input-label">Novo Item:</label>
+                            <input type="text" id="dbItemName" placeholder="Nome do item..." required  class="form-input-field">
                         </div>
-                        <button type="submit" style="width: auto; padding: 9px 15px; font-size: 13px;">💾 Adicionar</button>
-                        <button type="reset" class="btn-secondary" style="width: auto !important; padding: 9px 15px !important; font-size: 13px; border-radius: 6px;">Limpar</button>
+                        <button type="submit"  class="btn-submit-action">💾 Adicionar</button>
+                        <button type="reset" class="btn-secondary btn-reset-action" >Limpar</button>
                     </form>
                 </div>
-                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <div  class="table-scroll-container">
+                    <table  class="custom-data-table">
                         <thead>
-                            <tr style="background-color: #f7fafc; border-bottom: 2px solid #e2e8f0;">
-                                <th style="padding: 10px;">Nome do Item</th>
-                                <th style="padding: 10px; width: 60px; text-align: center;">Ações</th>
+                            <tr  class="table-header-row">
+                                <th  class="table-cell-default">Nome do Item</th>
+                                <th  class="table-cell-actions-60">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="dbItemsTableBody">
@@ -402,12 +469,12 @@
 
             <!-- Conteúdo da Tab de Impressão -->
             <div id="contentPrint" class="hidden">
-                <form id="formPrintSettings" style="display: flex; flex-direction: column; gap: 15px;">
-                    <div style="background-color: #f7fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <h4 style="margin-top: 0; margin-bottom: 15px; color: #2d3748;">Tamanho da Folha</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Selecione o Formato:</label>
-                            <select id="printPageSize" style="padding: 10px; font-size: 14px; width: 100%; max-width: 300px;">
+                <form id="formPrintSettings"  class="settings-form-column">
+                    <div  class="settings-card-box">
+                        <h4  class="settings-card-title">Tamanho da Folha</h4>
+                        <div  class="margin-bottom-15">
+                            <label  class="settings-input-label">Selecione o Formato:</label>
+                            <select id="printPageSize"  class="settings-select-large">
                                 <option value="A4">📄 A4 (Padrão - 6 Notas)</option>
                                 <option value="A5">📄 A5 (4 Notas)</option>
                                 <option value="Thermal">🧾 Bobina Térmica (80mm - Infinito)</option>
@@ -415,31 +482,31 @@
                             </select>
                         </div>
                         
-                        <div id="customSizeContainer" class="hidden" style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                        <div id="customSizeContainer" class="hidden settings-row-center" >
                             <div>
-                                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Largura (mm):</label>
-                                <input type="number" id="printCustomWidth" value="80" style="padding: 8px; font-size: 14px; width: 80px;">
+                                <label  class="settings-input-label">Largura (mm):</label>
+                                <input type="number" id="printCustomWidth" value="80"  class="settings-input-number">
                             </div>
                             <div>
-                                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Altura (mm):</label>
-                                <input type="number" id="printCustomHeight" value="200" style="padding: 8px; font-size: 14px; width: 80px;">
+                                <label  class="settings-input-label">Altura (mm):</label>
+                                <input type="number" id="printCustomHeight" value="200"  class="settings-input-number">
                             </div>
                         </div>
                         
                         <div id="maxOrdersContainer">
-                            <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Lotação (Notas por folha):</label>
-                            <input type="number" id="printMaxOrders" value="6" min="1" max="50" style="padding: 8px; font-size: 14px; width: 100px;">
-                            <span style="font-size: 12px; color: #718096; margin-left: 10px;">Deixe um número alto para não limitar a página (ex: impressora térmica).</span>
+                            <label  class="settings-input-label">Lotação (Notas por folha):</label>
+                            <input type="number" id="printMaxOrders" value="6" min="1" max="50"  class="settings-input-number-lg">
+                            <span  class="settings-help-text">Deixe um número alto para não limitar a página (ex: impressora térmica).</span>
                         </div>
                     </div>
                     
-                    <button type="submit" style="align-self: flex-start; padding: 10px 20px;">💾 Salvar Configurações</button>
+                    <button type="submit"  class="btn-save-settings-primary">💾 Salvar Configurações</button>
                 </form>
             </div>
             
             <!-- Rodapé com botão grande de fechar -->
-            <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; display: flex; justify-content: flex-end;">
-                <button type="button" id="btnBottomCloseDB" class="btn-secondary" style="width: auto !important; padding: 10px 20px; font-size: 14px; height: auto !important; display: inline-flex !important; align-items: center; justify-content: center;">⬅️ Fechar e Voltar ao Sistema</button>
+            <div  class="modal-footer-row">
+                <button type="button" id="btnBottomCloseDB" class="btn-secondary btn-close-modal-large" >⬅️ Fechar e Voltar ao Sistema</button>
             </div>
         </div>
     </div>
