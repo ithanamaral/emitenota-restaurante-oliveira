@@ -327,6 +327,7 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
                 <button type="button" id="tabClientes" class="tab-btn active-tab" style="width: auto; padding: 8px 15px; font-size: 14px;">👥 Clientes</button>
                 <button type="button" id="tabItens" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px;">🍕 Cardápio (Itens)</button>
+                <button type="button" id="tabPrint" class="tab-btn" style="width: auto; padding: 8px 15px; font-size: 14px;">🖨️ Folha Personalizada</button>
             </div>
 
             <!-- Conteúdo da Tab Clientes -->
@@ -397,6 +398,43 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Conteúdo da Tab de Impressão -->
+            <div id="contentPrint" class="hidden">
+                <form id="formPrintSettings" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="background-color: #f7fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <h4 style="margin-top: 0; margin-bottom: 15px; color: #2d3748;">Tamanho da Folha</h4>
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Selecione o Formato:</label>
+                            <select id="printPageSize" style="padding: 10px; font-size: 14px; width: 100%; max-width: 300px;">
+                                <option value="A4">📄 A4 (Padrão - 6 Notas)</option>
+                                <option value="A5">📄 A5 (4 Notas)</option>
+                                <option value="Thermal">🧾 Bobina Térmica (80mm - Infinito)</option>
+                                <option value="Custom">⚙️ Personalizado</option>
+                            </select>
+                        </div>
+                        
+                        <div id="customSizeContainer" class="hidden" style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Largura (mm):</label>
+                                <input type="number" id="printCustomWidth" value="80" style="padding: 8px; font-size: 14px; width: 80px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Altura (mm):</label>
+                                <input type="number" id="printCustomHeight" value="200" style="padding: 8px; font-size: 14px; width: 80px;">
+                            </div>
+                        </div>
+                        
+                        <div id="maxOrdersContainer">
+                            <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Lotação (Notas por folha):</label>
+                            <input type="number" id="printMaxOrders" value="6" min="1" max="50" style="padding: 8px; font-size: 14px; width: 100px;">
+                            <span style="font-size: 12px; color: #718096; margin-left: 10px;">Deixe um número alto para não limitar a página (ex: impressora térmica).</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" style="align-self: flex-start; padding: 10px 20px;">💾 Salvar Configurações</button>
+                </form>
             </div>
             
             <!-- Rodapé com botão grande de fechar -->

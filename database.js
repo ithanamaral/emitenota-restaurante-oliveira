@@ -152,7 +152,13 @@ const defaultData = {
         "Sprite (600 ml)",
         "Sprite (Lata)",
         "Uva (Suco Lata)"
-    ]
+    ],
+    printSettings: {
+        pageSize: "A4",
+        customWidth: 80, // mm
+        customHeight: 200, // mm
+        maxOrdersPerSheet: 6
+    }
 };
 
 // Carrega os dados ou inicializa com os padrões

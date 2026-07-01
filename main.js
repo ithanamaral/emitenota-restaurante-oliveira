@@ -61,15 +61,29 @@ app.on('window-all-closed', () => {
 });
 
 // Manipulador para gerar e abrir o PDF
-ipcMain.handle('print-to-pdf', async (event) => {
+ipcMain.handle('print-to-pdf', async (event, ps) => {
   const pdfPath = path.join(os.tmpdir(), `Comprovante-${Date.now()}.pdf`);
   const win = BrowserWindow.fromWebContents(event.sender);
 
-  const data = await win.webContents.printToPDF({
+  const printOptions = {
     printBackground: true,
-    pageSize: 'A4',
-    margins: { top: 0, bottom: 0, left: 0, right: 0 } // Deixa o CSS controlar as margens
-  });
+    margins: { 
+      marginType: 'custom',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0
+    }
+  };
+
+  if (ps) {
+      if (ps.pageSize === 'A4') printOptions.pageSize = 'A4';
+      else if (ps.pageSize === 'A5') printOptions.pageSize = 'A5';
+      // Se for Custom ou Thermal, não definimos pageSize no Electron.
+      // Isso força o Chromium a respeitar as dimensões da regra CSS @page definida no renderer.js.
+  }
+
+  const data = await win.webContents.printToPDF(printOptions);
 
   fs.writeFileSync(pdfPath, data);
   await shell.openPath(pdfPath);

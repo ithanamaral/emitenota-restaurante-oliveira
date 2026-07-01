@@ -104,8 +104,13 @@ document.getElementById('remessaForm').addEventListener('submit', async (e) => {
         amountStr = formatBRL(baseAmount + frete);
     }
 
-    if (editingOrderId === null && ordersQueue.length >= 6) {
-        await showCustomAlert("A folha já está cheia (6/6)! Imprima ou limpe a folha primeiro.");
+    const ps = appData.printSettings || {};
+    const isThermal = ps.pageSize === 'Thermal';
+    const maxOrders = ps.maxOrdersPerSheet || 6;
+    
+    // Bloqueia se a folha estiver cheia e NÃO for térmica
+    if (editingOrderId === null && !isThermal && ordersQueue.length >= maxOrders) {
+        await showCustomAlert(`A folha já está cheia (${maxOrders}/${maxOrders})! Imprima ou limpe a folha primeiro.`);
         return;
     }
 
@@ -201,6 +206,20 @@ function setEditMode(isEditing) {
 function renderReceiptGrid(orders, isHistory = false) {
     const grid = document.getElementById('receipt-grid');
     grid.innerHTML = ''; // Limpa a grade antes de renderizar
+
+    // Aplica o layout configurado
+    const ps = appData.printSettings || { pageSize: "A4" };
+    grid.className = 'receipt-grid';
+    grid.classList.add(`layout-${ps.pageSize.toLowerCase()}`);
+    
+    // Se for custom, define dinamicamente a largura/altura
+    if (ps.pageSize === 'Custom') {
+        grid.style.width = ps.customWidth + 'mm';
+        grid.style.height = ps.customHeight + 'mm';
+    } else {
+        grid.style.width = '';
+        grid.style.height = '';
+    }
 
     orders.forEach(order => {
         grid.innerHTML += `
@@ -383,10 +402,12 @@ document.getElementById('receiverPhone').addEventListener('input', (e) => {
 document.getElementById('btnPrint').addEventListener('click', async () => {
     appData = db.readDB(); // Atualiza o banco
     const btn = document.getElementById('btnPrint');
+    const receiptArea = document.getElementById('receipt-area');
     const originalText = btn.innerText;
     
     btn.innerText = "Gerando PDF...";
     btn.disabled = true;
+    receiptArea.classList.add('printing');
 
     // Se não estiver visualizando o histórico, salva a folha atual no JSON do banco de dados
     if (!isViewingHistory && !hasSavedCurrentQueue && ordersQueue.length > 0) {
@@ -400,8 +421,34 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
         hasSavedCurrentQueue = true; // Marca como salvo para não duplicar nesta mesma visualização
     }
 
-    await ipcRenderer.invoke('print-to-pdf');
+    const ps = appData.printSettings || { pageSize: "A4" };
+    
+    // Injeta estilo dinâmico de @page para forçar as dimensões físicas exatas no PDF gerado pelo Chromium
+    let dynamicStyle = document.getElementById('dynamic-page-size');
+    if (!dynamicStyle) {
+        dynamicStyle = document.createElement('style');
+        dynamicStyle.id = 'dynamic-page-size';
+        document.head.appendChild(dynamicStyle);
+    }
 
+    let pageCSS = '@page { margin: 0mm !important; }';
+    if (ps.pageSize === 'A4') {
+        pageCSS = '@page { size: 210mm 297mm; margin: 0mm !important; }';
+    } else if (ps.pageSize === 'A5') {
+        pageCSS = '@page { size: 148mm 210mm; margin: 0mm !important; }';
+    } else if (ps.pageSize === 'Thermal') {
+        // Pega a altura real do conteúdo para não deixar um espaço em branco infinito no final da bobina
+        const gridHeight = document.getElementById('receipt-grid').offsetHeight;
+        pageCSS = `@page { size: 80mm ${gridHeight + 40}px; margin: 0mm !important; }`;
+    } else if (ps.pageSize === 'Custom') {
+        pageCSS = `@page { size: ${ps.customWidth}mm ${ps.customHeight}mm; margin: 0mm !important; }`;
+    }
+    dynamicStyle.innerHTML = pageCSS;
+    
+    // Dispara a impressão
+    const success = await ipcRenderer.invoke('print-to-pdf', ps);
+
+    receiptArea.classList.remove('printing');
     btn.innerText = originalText;
     btn.disabled = false;
 });
@@ -799,21 +846,95 @@ document.getElementById('btnBottomCloseDB').addEventListener('click', () => {
 // Tabs do modal
 const tabClientes = document.getElementById('tabClientes');
 const tabItens = document.getElementById('tabItens');
+const tabPrint = document.getElementById('tabPrint');
 const contentClientes = document.getElementById('contentClientes');
 const contentItens = document.getElementById('contentItens');
+const contentPrint = document.getElementById('contentPrint');
 
 tabClientes.addEventListener('click', () => {
     tabClientes.classList.add('active-tab');
     tabItens.classList.remove('active-tab');
+    tabPrint.classList.remove('active-tab');
     contentClientes.classList.remove('hidden');
     contentItens.classList.add('hidden');
+    contentPrint.classList.add('hidden');
 });
 
 tabItens.addEventListener('click', () => {
     tabItens.classList.add('active-tab');
     tabClientes.classList.remove('active-tab');
+    tabPrint.classList.remove('active-tab');
     contentItens.classList.remove('hidden');
     contentClientes.classList.add('hidden');
+    contentPrint.classList.add('hidden');
+});
+
+// Lógica da Tab de Configurações de Impressão
+const formPrintSettings = document.getElementById('formPrintSettings');
+const printPageSize = document.getElementById('printPageSize');
+const customSizeContainer = document.getElementById('customSizeContainer');
+const printCustomWidth = document.getElementById('printCustomWidth');
+const printCustomHeight = document.getElementById('printCustomHeight');
+const printMaxOrders = document.getElementById('printMaxOrders');
+
+tabPrint.addEventListener('click', () => {
+    tabPrint.classList.add('active-tab');
+    tabClientes.classList.remove('active-tab');
+    tabItens.classList.remove('active-tab');
+    contentPrint.classList.remove('hidden');
+    contentClientes.classList.add('hidden');
+    contentItens.classList.add('hidden');
+    
+    appData = db.readDB();
+    const ps = appData.printSettings || { pageSize: "A4", customWidth: 80, customHeight: 200, maxOrdersPerSheet: 6 };
+    printPageSize.value = ps.pageSize;
+    printCustomWidth.value = ps.customWidth;
+    printCustomHeight.value = ps.customHeight;
+    printMaxOrders.value = ps.maxOrdersPerSheet;
+    
+    if (ps.pageSize === "Custom") {
+        customSizeContainer.classList.remove('hidden');
+    } else {
+        customSizeContainer.classList.add('hidden');
+    }
+
+    const maxOrdersContainer = document.getElementById('maxOrdersContainer');
+    if (ps.pageSize === "Thermal") {
+        maxOrdersContainer.classList.add('hidden');
+    } else {
+        maxOrdersContainer.classList.remove('hidden');
+    }
+});
+
+printPageSize.addEventListener('change', () => {
+    const maxOrdersContainer = document.getElementById('maxOrdersContainer');
+    
+    if (printPageSize.value === "Thermal") {
+        maxOrdersContainer.classList.add('hidden');
+    } else {
+        maxOrdersContainer.classList.remove('hidden');
+    }
+
+    if (printPageSize.value === "Custom") {
+        customSizeContainer.classList.remove('hidden');
+    } else {
+        customSizeContainer.classList.add('hidden');
+        if (printPageSize.value === "A4") printMaxOrders.value = 6;
+        if (printPageSize.value === "A5") printMaxOrders.value = 4;
+    }
+});
+
+formPrintSettings.addEventListener('submit', (e) => {
+    e.preventDefault();
+    appData = db.readDB();
+    appData.printSettings = {
+        pageSize: printPageSize.value,
+        customWidth: parseInt(printCustomWidth.value, 10),
+        customHeight: parseInt(printCustomHeight.value, 10),
+        maxOrdersPerSheet: parseInt(printMaxOrders.value, 10)
+    };
+    db.writeDB(appData);
+    window.location.reload(); // Recarrega para aplicar os estilos de folha corretamente
 });
 
 // Renderizar Clientes no Modal
@@ -1187,5 +1308,23 @@ btnImportDb.addEventListener('click', () => {
         db.changeDbPath(newPath, false); // false = just point to it
         dbLocationModal.classList.add('hidden');
         window.location.reload(); // Reload to refresh data
+    }
+});
+
+// Remover Splash Screen após o carregamento
+window.addEventListener('load', () => {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        setTimeout(() => {
+            splashScreen.style.opacity = '0';
+            splashScreen.style.visibility = 'hidden';
+            setTimeout(() => {
+                splashScreen.remove();
+                
+                // Forçar a exibição correta dos selects e datalists após o splash
+                populateSelectOptions();
+                updateClientsDatalist();
+            }, 600); // tempo da transição CSS
+        }, 2500); // tempo mínimo exibindo a logo (2.5 segundos)
     }
 });
