@@ -19,7 +19,7 @@ function createWindow() {
     height: 1050,
     show: false,
     backgroundColor: '#f0f2f5',
-    icon: path.join(__dirname, 'logo-oliveira.ico'),
+    icon: path.join(__dirname, 'public', 'logo-oliveira-cropped.png'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -48,6 +48,7 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
+    app.setAppUserModelId('com.oliveira.emitenota');
     createWindow();
 
     app.on('activate', () => {
