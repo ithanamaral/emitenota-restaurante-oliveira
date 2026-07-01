@@ -1,8 +1,0 @@
-{
-    "github.copilot.chat.commitMessageGeneration.instructions": [
-        "Always write commit messages in Brazilian Portuguese (Português do Brasil).",
-        "Use imperative verbs (e.g., 'Adiciona', 'Corrige', 'Atualiza').",
-        "Be descriptive and direct."
-    ],
-    "github.copilot.chat.localeOverride": "pt-BR"
-}
