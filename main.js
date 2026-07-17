@@ -92,7 +92,14 @@ ipcMain.handle('print-to-pdf', async (event, ps) => {
 
 // Manipulador para perguntar o local do banco de dados na primeira execução
 ipcMain.on('ask-db-location', (event) => {
-  const choice = dialog.showMessageBoxSync({
+  const win = BrowserWindow.fromWebContents(event.sender);
+  
+  // Garante que a janela principal esteja visível para ancorar o diálogo
+  if (win && !win.isVisible()) {
+    win.show();
+  }
+
+  const choice = dialog.showMessageBoxSync(win, {
     type: 'question',
     buttons: ['Criar Novo Banco de Dados', 'Localizar Banco Existente', 'Usar Padrão'],
     defaultId: 0,
@@ -103,14 +110,14 @@ ipcMain.on('ask-db-location', (event) => {
 
   let selectedPath = null;
   if (choice === 0) { // Criar Novo
-    const savePath = dialog.showSaveDialogSync({
+    const savePath = dialog.showSaveDialogSync(win, {
       title: 'Salvar Novo Banco de Dados',
       defaultPath: 'db.json',
       filters: [{ name: 'JSON', extensions: ['json'] }]
     });
     if (savePath) selectedPath = savePath;
   } else if (choice === 1) { // Localizar Existente
-    const openPaths = dialog.showOpenDialogSync({
+    const openPaths = dialog.showOpenDialogSync(win, {
       title: 'Localizar Banco de Dados Existente',
       filters: [{ name: 'JSON', extensions: ['json'] }],
       properties: ['openFile']
@@ -126,7 +133,8 @@ ipcMain.on('ask-db-location', (event) => {
 
 // IPC para "Conectar a Outro Banco" (Abre direto o localizador)
 ipcMain.on('select-db-location', (event) => {
-  const openPaths = dialog.showOpenDialogSync({
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const openPaths = dialog.showOpenDialogSync(win, {
     title: 'Selecionar Banco de Dados db.json',
     filters: [{ name: 'JSON', extensions: ['json'] }],
     properties: ['openFile']
@@ -137,7 +145,8 @@ ipcMain.on('select-db-location', (event) => {
 
 // IPC para "Copiar/Mover Banco Atual" (Abre direto o salvador)
 ipcMain.on('export-db-location', (event, defaultName = 'db.json') => {
-  const savePath = dialog.showSaveDialogSync({
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const savePath = dialog.showSaveDialogSync(win, {
     title: 'Salvar Cópia do Banco de Dados',
     defaultPath: defaultName,
     filters: [{ name: 'JSON', extensions: ['json'] }]
