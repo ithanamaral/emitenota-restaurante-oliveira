@@ -726,7 +726,7 @@ function fillFormWithRandomData() {
 
     // Sorteia forma de pagamento
     const pagamentoSelect = document.getElementById('pagamento-select');
-    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro"];
+    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro", "Voucher Alimentação/Refeição"];
     pagamentoSelect.value = pagamentos[Math.floor(Math.random() * pagamentos.length)];
 
     // Sorteia tamanho da marmita
