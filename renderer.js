@@ -18,6 +18,7 @@ fs.watchFile(db.getActiveDbPath(), { interval: 500 }, (curr, prev) => {
         if (dbModal && !dbModal.classList.contains('hidden')) {
             renderClientsTable();
             renderItemsTable();
+            renderGruposSelector();
         }
         
         // Se a tela de histórico estiver aberta, atualiza a tabela
@@ -198,15 +199,15 @@ function setEditMode(isEditing) {
     const btnAddToList = document.getElementById('btnAddToList');
 
     if (isEditing) {
-        btnQuickFill.classList.add('hidden');
+        if (btnQuickFill) btnQuickFill.classList.add('hidden');
         btnShowSheet.classList.add('hidden');
-        btnTestLayout.classList.add('hidden');
+        if (btnTestLayout) btnTestLayout.classList.add('hidden');
         btnCancelEdit.classList.remove('hidden');
         btnAddToList.innerHTML = `➕ Atualizar na Folha`;
     } else {
-        btnQuickFill.classList.remove('hidden');
+        if (btnQuickFill) btnQuickFill.classList.remove('hidden');
         btnShowSheet.classList.remove('hidden');
-        btnTestLayout.classList.remove('hidden');
+        if (btnTestLayout) btnTestLayout.classList.remove('hidden');
         btnCancelEdit.classList.add('hidden');
         btnAddToList.innerHTML = `➕ Adicionar à Folha (<span id="queue-count">${ordersQueue.length}</span>/6)`;
     }
@@ -726,7 +727,7 @@ function fillFormWithRandomData() {
 
     // Sorteia forma de pagamento
     const pagamentoSelect = document.getElementById('pagamento-select');
-    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro", "Voucher Alimentação/Refeição"];
+    const pagamentos = ["Pix", "Cartão de Crédito", "Cartão de Débito", "Dinheiro", "Voucher Alimentação/Refeição", "Delivery"];
     pagamentoSelect.value = pagamentos[Math.floor(Math.random() * pagamentos.length)];
 
     // Sorteia tamanho da marmita
@@ -768,10 +769,10 @@ function fillFormWithRandomData() {
 }
 
 // Evento do botão "Mágico" de preenchimento
-document.getElementById('btnQuickFill').addEventListener('click', fillFormWithRandomData);
+document.getElementById('btnQuickFill')?.addEventListener('click', fillFormWithRandomData);
 
 // Melhora o "Testar Layout" para simular o processo real de 6 notas
-document.getElementById('btnTestLayout').addEventListener('click', async () => {
+document.getElementById('btnTestLayout')?.addEventListener('click', async () => {
     const keep = await showCustomConfirm("Isso irá limpar sua fila e gerar 6 pedidos reais para teste. Continuar?", "Sim", "Não");
     if(!keep) return;
     
@@ -985,6 +986,7 @@ document.getElementById('btnOpenDBManager').addEventListener('click', () => {
     dbModal.classList.remove('hidden');
     renderClientsTable();
     renderItemsTable();
+    renderGruposSelector();
 });
 
 document.getElementById('btnCloseDBManager').addEventListener('click', () => {
