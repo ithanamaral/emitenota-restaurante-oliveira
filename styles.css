@@ -236,15 +236,29 @@ button:active {
     height: 210mm;
 }
 
-/* Layout Térmica (80mm - Infinito) */
+/* Layout Térmica (folha fixa de 80mm x 140mm) */
 .receipt-grid.layout-thermal {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     width: 80mm;
     height: auto;
-    min-height: 200mm;
     padding: 0;
-    gap: 5mm; /* Espaço para o corte/leitura */
+    gap: 5mm; /* Espaço para o corte/leitura entre as folhas */
+    background-color: transparent; /* Cada folha tem seu próprio fundo branco */
+    box-shadow: none;
+}
+
+/* Preview na tela: cada pedido aparece como uma folha de 80x140mm, igual ao PDF.
+   Sem box-shadow: a sombra vazava para o PDF (printBackground: true renderiza sombras). */
+.receipt-grid.layout-thermal .receipt-container {
+    width: 80mm;
+    min-height: 140mm;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+.info-label {
+    font-weight: bold;
 }
 
 /* Layout Customizado (tamanho definido no HTML via JS) */
@@ -555,12 +569,13 @@ button:active {
     .no-print { display: none !important; }
     #splash-screen { display: none !important; }
     
-    #receipt-area { 
-        background: none !important; 
-        padding: 0 !important; 
+    #receipt-area {
+        background: none !important;
+        padding: 0 !important;
         margin: 0 !important;
         display: block !important;
         width: 100% !important;
+        min-height: 0 !important; /* Reseta o min-height: 100vh que estava esticando o container e criando páginas em branco */
     }
 
     html, body { 
@@ -602,12 +617,43 @@ button:active {
     }
     
     .receipt-grid.layout-thermal {
+        /* O Chromium não fragmenta um display:grid entre páginas: se o conteúdo não
+           coubesse no grid inteiro, a página inteira era empurrada e saía em branco.
+           Por isso, no modo térmico, viramos blocos normais empilhados — cada pedido
+           vira uma folha própria de 80x140mm (ver page-break-after abaixo). */
+        display: block;
         width: 80mm;
         height: auto;
     }
 
+    .receipt-grid.layout-thermal .receipt-container {
+        /* Cada pedido ocupa uma folha própria de 80x140mm. */
+        page-break-after: always;
+        break-after: page;
+        /* Mantém o pedido inteiro numa única folha (não divide o conteúdo entre páginas). */
+        page-break-inside: avoid;
+        break-inside: avoid;
+        /* display:block em vez de flex: o flex estava esticando o conteúdo verticalmente,
+           empurrando o total para o fim e estourando os 140mm (daí a quebra em 2 páginas). */
+        display: block;
+        height: auto;
+        min-height: 0; /* Anula o min-height:140mm do preview: na impressão a folha já é os 140mm do @page.
+                          Forçar 140mm exatos arrisca estourar por arredondamento e criar folha em branco. */
+        box-sizing: border-box;
+        width: 80mm;
+        box-shadow: none !important; /* Impede que qualquer sombra do preview seja renderizada no PDF */
+    }
+
+    .receipt-grid.layout-thermal .receipt-container:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
     .receipt-container {
-        border: 1px solid #000; /* Borda sólida preta para melhor visibilidade no papel */
+        border-top: 1px solid #000;
+        border-left: 1px solid #000;
+        border-right: 1px solid #000;
+        
         padding: 5px; /* Reduz o preenchimento interno na impressão */
         page-break-inside: avoid;
     }

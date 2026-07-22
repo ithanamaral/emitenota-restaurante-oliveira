@@ -270,8 +270,9 @@ function renderReceiptGrid(orders, isHistory = false) {
                             <span class="info-label">TAMANHO / Quantidade:</span>
                             <span class="info-value">${order.tamanho} (${order.quantity}x)</span>
                         </div>
-                    ${order.carnes.length > 0 ? `
-                    <div class="info-section">
+                    ${(order.carnes.length > 0 || order.acompanhamentos.length > 0 || order.bebidas.length > 0 || order.sobremesa || order.observacoes) ? `
+                        <div class="info-section">
+                            ${order.carnes.length > 0 ? `
                             <div class="info-row">
                                 <span class="info-label">CARNES:</span>
                                 <br>
@@ -291,7 +292,7 @@ function renderReceiptGrid(orders, isHistory = false) {
                             </div>` : ''}
                             ${order.sobremesa ? `<div style="background:#fffaf0; padding:4px; font-size:9px; border-radius:4px; margin-top:5px; border-left: 2px solid var(--accent-color);"><strong>Sobremesa:</strong> ${order.sobremesa}</div>` : ''}
                             ${order.observacoes ? `<div style="background:#f7f7f7; padding:4px; font-size:9px; border-radius:4px; margin-top:5px;"><strong>Obs:</strong> ${order.observacoes}</div>` : ''}
-                        </div>
+                        </div>` : ''}
                     </div>
                 <div class="total-section">
                     ${order.frete ? `
@@ -453,14 +454,15 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     } else if (ps.pageSize === 'A5') {
         pageCSS = '@page { size: 148mm 210mm; margin: 0mm !important; }';
     } else if (ps.pageSize === 'Thermal') {
-        // Pega a altura real do conteúdo para não deixar um espaço em branco infinito no final da bobina
-        const gridHeight = document.getElementById('receipt-grid').offsetHeight;
-        pageCSS = `@page { size: 80mm ${gridHeight + 40}px; margin: 0mm !important; }`;
+        // A impressora só suporta folhas de até 80mm de largura por 140mm de altura.
+        // Cada pedido é impresso em sua própria folha (ver regra .layout-thermal em @media
+        // print no styles.css, que troca o grid para blocos com quebra de página por item).
+        pageCSS = `@page { size: 80mm 140mm; margin: 0mm !important; }`;
     } else if (ps.pageSize === 'Custom') {
         pageCSS = `@page { size: ${ps.customWidth}mm ${ps.customHeight}mm; margin: 0mm !important; }`;
     }
     dynamicStyle.innerHTML = pageCSS;
-    
+
     // Dispara a impressão
     const success = await ipcRenderer.invoke('print-to-pdf', ps);
 

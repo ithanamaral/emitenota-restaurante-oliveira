@@ -77,11 +77,23 @@ ipcMain.handle('print-to-pdf', async (event, ps) => {
     }
   };
 
+  // O printToPDF do Electron espera pageSize como objeto com width/height EM POLEGADAS
+  // (NÃO em microns nem mm). 1 polegada = 25.4 mm.
+  const mmToInch = (mm) => mm / 25.4;
+
   if (ps) {
       if (ps.pageSize === 'A4') printOptions.pageSize = 'A4';
       else if (ps.pageSize === 'A5') printOptions.pageSize = 'A5';
-      // Se for Custom ou Thermal, não definimos pageSize no Electron.
-      // Isso força o Chromium a respeitar as dimensões da regra CSS @page definida no renderer.js.
+      else if (ps.pageSize === 'Thermal') {
+          // O Chromium NÃO respeita o tamanho de papel definido via CSS @page no printToPDF.
+          // Precisamos informar as dimensões físicas explicitamente, em polegadas.
+          // Tamanho fixo suportado pela impressora: 80mm x 140mm.
+          printOptions.pageSize = { width: mmToInch(80), height: mmToInch(140) };
+      } else if (ps.pageSize === 'Custom') {
+          const w = parseInt(ps.customWidth, 10) || 80;
+          const h = parseInt(ps.customHeight, 10) || 140;
+          printOptions.pageSize = { width: mmToInch(w), height: mmToInch(h) };
+      }
   }
 
   const data = await win.webContents.printToPDF(printOptions);
